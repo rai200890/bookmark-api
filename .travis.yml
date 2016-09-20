@@ -3,10 +3,14 @@ python:
   - "3.4"
 services:
   - mysql
-install: pip install -r requirements-dev.txt
+install:
+   - pip install -r requirements-dev.txt
 before_script:
   - mysql -e 'create database booking_api_test;'
-script: py.test --cov=bookmark_api --cov-report=term --cov-report=xml tests/* -s -r a --color=yes || true
+script:
+  - py.test --cov=bookmark_api --cov-report=term --cov-report=xml tests/* -s -r a --color=yes || true
+after_script:
+  - codeclimate-test-reporter --file coverage.xml
 addons:
     code_climate:
         repo_token: 2939b836d0280e134c8c62e8f9818ff48f48b677cb8094aeef3db8284596ddc9
