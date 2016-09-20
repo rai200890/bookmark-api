@@ -1,6 +1,7 @@
 # bookmark-api
+[![Build Status](https://travis-ci.org/rai200890/bookmark-api.svg)](https://travis-ci.org/rai200890/bookmark-api)
 [![Code Climate](https://codeclimate.com/github/rai200890/bookmark-api/badges/gpa.svg)](https://codeclimate.com/github/rai200890/bookmark-api)
-[![Code Climate](https://codeclimate.com/github/rai200890/bookmark-api/badges/gpa.svg)](https://codeclimate.com/github/rai200890/bookmark-api)
+[![Test Coverage](https://codeclimate.com/github/rai200890/bookmark-api/badges/coverage.svg)](https://codeclimate.com/github/rai200890/bookmark-api/coverage)
 
 Bookmark API
 
