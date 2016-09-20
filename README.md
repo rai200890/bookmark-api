@@ -1,4 +1,6 @@
 # bookmark-api
+[![Code Climate](https://codeclimate.com/github/rai200890/bookmark-api/badges/gpa.svg)](https://codeclimate.com/github/rai200890/bookmark-api)
+[![Code Climate](https://codeclimate.com/github/rai200890/bookmark-api/badges/gpa.svg)](https://codeclimate.com/github/rai200890/bookmark-api)
 
 Bookmark API
 
