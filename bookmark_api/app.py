@@ -1,4 +1,8 @@
-from bookmark_api import app, db
+from bookmark_api import app, db, api
+from bookmark_api.resources.bookmark import BookmarkListResource
+
+
+api.add_resource(BookmarkListResource, '/bookmarks')
 
 
 @app.route("/healthcheck")
