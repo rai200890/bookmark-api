@@ -22,6 +22,9 @@ class BookmarkListRequestSchema(Schema):
     per_page = fields.Integer(required=False)
     page = fields.Integer(required=False)
 
+    class Meta:
+        strict = True
+
 
 class BookmarkSchema(Schema):
     id = fields.Integer()
@@ -32,6 +35,8 @@ class BookmarkSchema(Schema):
 
 class BookmarkRequestSchema(Schema):
     bookmark = fields.Nested(BookmarkSchema)
+    class Meta:
+        strict = True
 
 
 class BookmarkListResponseSchema(SelfSchema):

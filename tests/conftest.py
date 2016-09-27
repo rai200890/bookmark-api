@@ -16,16 +16,15 @@ def app(request):
 
     def teardown():
         ctx.pop()
-
+    
     request.addfinalizer(teardown)
     return _app
 
 
 @pytest.fixture(scope='session', autouse=True)
 def build_db(app):
+    db.drop_all()
     db.create_all()
-    db.session.commit()
-
 
 @pytest.fixture(scope='function', autouse=True)
 def rollback(app, request):

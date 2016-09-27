@@ -13,9 +13,9 @@ manager.add_command('db', MigrateCommand)
 @manager.command
 def create_user(username, password):
     try:
-        if User.query.filter_by(username = username).first() is not None:
+        if User.query.filter_by(username=username).first() is not None:
             raise ValueError('User already exists')
-        user = User(username = username)
+        user = User(username=username)
         user.hash_password(password)
         db.session.add(user)
         db.session.commit()

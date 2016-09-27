@@ -27,7 +27,5 @@ class BookmarkResource(Resource):
 
     @use_kwargs(BookmarkRequestSchema)
     def post(self, **kwargs):
-        bookmark = Bookmark(**kwargs)
-        db.session.add(bookmark)
-        db.session.commit()
+        bookmark = Bookmark.create(**kwargs)
         return BookmarkResponseSchema().dump(bookmark).data
