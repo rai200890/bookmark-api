@@ -3,7 +3,7 @@ from os import environ
 import pytest
 
 from bookmark_api.app import app as _app
-from bookmark_api import db, models
+from bookmark_api import models, db
 
 
 @pytest.fixture(scope='session')
@@ -16,15 +16,15 @@ def app(request):
 
     def teardown():
         ctx.pop()
-    
+
     request.addfinalizer(teardown)
     return _app
 
 
 @pytest.fixture(scope='session', autouse=True)
 def build_db(app):
-    db.drop_all()
     db.create_all()
+    db.session.commit()
 
 @pytest.fixture(scope='function', autouse=True)
 def rollback(app, request):
