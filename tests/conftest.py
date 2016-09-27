@@ -2,8 +2,8 @@ from os import environ
 
 import pytest
 
-from bookmark_api import app as _app
-from bookmark_api import db
+from bookmark_api.app import app as _app
+from bookmark_api import models, db
 
 
 @pytest.fixture(scope='session')
@@ -24,7 +24,7 @@ def app(request):
 @pytest.fixture(scope='session', autouse=True)
 def build_db(app):
     db.create_all()
-
+    db.session.commit()
 
 @pytest.fixture(scope='function', autouse=True)
 def rollback(app, request):

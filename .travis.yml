@@ -6,8 +6,9 @@ services:
 install:
    - pip install -r requirements-dev.txt
 before_script:
-  - mysql -e 'create database booking_api_test;'
+  - mysql -u root -e 'create database bookmark_api_development;'
+  - mysql -u root -e 'create database bookmark_api_test;'
 script:
-  - py.test --cov=bookmark_api --cov-report=term --cov-report=xml tests/* -s -r a --color=yes || true
+  - py.test --cov=bookmark_api --cov-report=term --cov-report=xml tests/* -s -r a --color=yes
 after_script:
   - codeclimate-test-reporter --token $ CODECLIMATE_TOKEN

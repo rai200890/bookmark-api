@@ -23,8 +23,5 @@ run: #run server
 flake8: clean #run flake8 verifications
 	venv/bin/flake8 bookmark_api tests || true
 
-test: clean #run unit tests
-	venv/bin/py.test tests -s -r a --color=yes || true
-
-test-cov: clean #run unit tests with coverage report
+test: clean #run unit tests with coverage report
 	venv/bin/py.test --cov=bookmark_api --cov-report=term --cov-report=xml --cov-report=html  tests/* -s -r a --color=yes || true

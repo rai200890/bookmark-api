@@ -4,4 +4,5 @@ ipdb==0.10.1
 flake8==3.0.4
 pytest-cov==2.2.1
 codeclimate-test-reporter==0.1.2
+responses==0.5.1
 -e .
