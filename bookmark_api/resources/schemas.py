@@ -1,8 +1,43 @@
-from webargs import fields
-from marshmallow import Schema
-from webargs.flaskparser import use_args
+from marshmallow import Schema, fields
+
+
+class SelfSchema(Schema):
+    def get_attribute(self, attr, obj, default):
+        if attr == "self":
+            return obj
+        return super(SelfSchema, self).get_attribute(attr, obj, default)
+
+
+class PaginationSchema(Schema):
+    has_next = fields.Boolean()
+    has_prev = fields.Boolean()
+    next_page = fields.Integer(attribute="next_num")
+    prev_page = fields.Integer(attribute="prev_num")
+    total = fields.Integer()
+    per_page = fields.Integer()
+    pages = fields.Integer()
 
 
 class BookmarkListRequestSchema(Schema):
-    per = fields.Integer(required=False)
+    per_page = fields.Integer(required=False)
     page = fields.Integer(required=False)
+
+
+class BookmarkSchema(Schema):
+    id = fields.Integer()
+    title = fields.String(required=True)
+    url = fields.Url(required=True)
+    user_id = fields.Integer(required=True)
+
+
+class BookmarkRequestSchema(Schema):
+    bookmark = fields.Nested(BookmarkSchema)
+
+
+class BookmarkListResponseSchema(SelfSchema):
+    bookmarks = fields.Nested(BookmarkSchema, many=True, attribute="items")
+    pagination = fields.Nested(PaginationSchema, attribute="self")
+
+
+class BookmarkResponseSchema(Schema):
+    bookmark = fields.Nested(BookmarkSchema)

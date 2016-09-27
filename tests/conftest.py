@@ -2,7 +2,7 @@ from os import environ
 
 import pytest
 
-from bookmark_api import app as _app
+from bookmark_api.app import app as _app
 from bookmark_api import db, models
 
 
