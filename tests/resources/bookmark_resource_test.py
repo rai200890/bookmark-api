@@ -62,7 +62,7 @@ def test_get_exists(api_test_client, bookmark):
     assert data['bookmark']
 
 
-def test_get_doesnt_exists(api_test_client):
+def test_get_doesnt_exist(api_test_client):
     response = api_test_client.get('/bookmarks/{}'.format(1))
     assert response.status_code == 404
 

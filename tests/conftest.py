@@ -9,7 +9,8 @@ from bookmark_api import db
 def pytest_sessionstart(session):
     _app.config.update(
         TESTING=True,
-        SQLALCHEMY_DATABASE_URI=environ.get("SQLALCHEMY_DATABASE_URI_TEST")
+        SQLALCHEMY_DATABASE_URI=environ.get("SQLALCHEMY_DATABASE_URI_TEST"),
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
     db.drop_all()
     db.create_all()
