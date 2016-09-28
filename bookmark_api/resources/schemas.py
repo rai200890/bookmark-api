@@ -28,8 +28,8 @@ class BookmarkListRequestSchema(Schema):
 
 class BookmarkSchema(Schema):
     id = fields.Integer()
-    title = fields.String(required=True)
     url = fields.Url(required=True)
+    title = fields.String(required=True)
     user_id = fields.Integer(required=True)
 
 
