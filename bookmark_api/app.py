@@ -3,12 +3,11 @@ from bookmark_api.resources.bookmark import (
     BookmarkListResource,
     BookmarkResource
 )
-from marshmallow.exceptions import ValidationError
 from flask import jsonify
 
 
 api.add_resource(BookmarkListResource, '/bookmarks')
-api.add_resource(BookmarkResource, '/bookmarks','/bookmarks/<bookmark_id>')
+api.add_resource(BookmarkResource, '/bookmarks', '/bookmarks/<bookmark_id>')
 
 
 @app.route("/healthcheck")
@@ -24,7 +23,7 @@ def handle_unprocessable_entity(err):
     if data:
         messages = data['exc'].messages
     else:
-        messages = [e.args]
+        messages = [err.args]
     return jsonify({"errors": messages}), 422
 
 

@@ -12,6 +12,7 @@ def user():
     db.session.flush()
     return user
 
+
 @pytest.fixture
 def user_2():
     user = User(username="raquel", email="raquel@email.com")
@@ -36,6 +37,7 @@ def valid_params(user):
         "url": "http://google.com",
         "user_id": user.id
     }
+
 
 @pytest.fixture
 def invalid_params_duplicated(user_2):
@@ -97,6 +99,22 @@ def test_post_invalid_missing_fields(api_test_client, invalid_params):
     response = api_test_client.post('/bookmarks',
                                     data=json.dumps({"bookmark": invalid_params}),
                                     headers={'Content-Type': 'application/json'})
+    data = json.loads(response.data.decode('utf-8'))
+    assert data["errors"]
+    assert response.status_code == 422
+
+
+def test_put_valid(api_test_client, bookmark, valid_params):
+    response = api_test_client.put('/bookmarks/{}'.format(bookmark.id),
+                                   data=json.dumps({"bookmark": valid_params}),
+                                   headers={'Content-Type': 'application/json'})
+    assert response.status_code == 204
+
+
+def test_put_invalid(api_test_client, bookmark, invalid_params):
+    response = api_test_client.put('/bookmarks/{}'.format(bookmark.id),
+                                   data=json.dumps({"bookmark": invalid_params}),
+                                   headers={'Content-Type': 'application/json'})
     data = json.loads(response.data.decode('utf-8'))
     assert data["errors"]
     assert response.status_code == 422
