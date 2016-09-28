@@ -49,27 +49,45 @@ class BookmarkResponseSchema(SelfSchema):
     bookmark = fields.Nested(BookmarkSchema, attribute="self")
 
 
-class BaseUserSchema(Schema):
+class CreateUserSchema(Schema):
+    id = fields.Integer()
+    username = fields.String(required=True)
+    email = fields.Email(required=True)
+    password = fields.String(required=True)
+    role_id = fields.Integer(required=True)
+
+
+class EditUserSchema(Schema):
+    id = fields.Integer()
+    email = fields.Email()
+    password = fields.String()
+    role_id = fields.Integer()
+
+
+class UserSchema(Schema):
     id = fields.Integer()
     username = fields.String(required=True)
     email = fields.Email(required=True)
     role_id = fields.Integer(required=True)
 
 
-class UserSchema(BaseUserSchema):
-    password = fields.String(required=True)
+class CreateUserRequestSchema(Schema):
+    user = fields.Nested(CreateUserSchema)
+
+    class Meta:
+        strict = True
 
 
-class UserRequestSchema(Schema):
-    user = fields.Nested(UserSchema)
+class EditUserRequestSchema(Schema):
+    user = fields.Nested(EditUserSchema)
 
     class Meta:
         strict = True
 
 
 class UserListResponseSchema(SelfSchema):
-    users = fields.Nested(BaseUserSchema, many=True, attribute="self")
+    users = fields.Nested(UserSchema, many=True, attribute="self")
 
 
 class UserResponseSchema(SelfSchema):
-    user = fields.Nested(BaseUserSchema, attribute="self")
+    user = fields.Nested(UserSchema, attribute="self")

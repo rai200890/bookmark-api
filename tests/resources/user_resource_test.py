@@ -14,6 +14,15 @@ def user():
 
 
 @pytest.fixture
+def other_user():
+    user = User(username="john_doe", email="john_doe@email.com")
+    user.hash_password("unknown")
+    db.session.add(user)
+    db.session.flush()
+    return user
+
+
+@pytest.fixture
 def role():
     role = Role(name="admin")
     db.session.add(role)
@@ -22,20 +31,38 @@ def role():
 
 
 @pytest.fixture
-def valid_params(role):
+def create_valid_params(role):
     return {
-        "username": "john_doe",
-        "email": "john_doe@email.com",
-        "password": "unknown",
-        "role_id": role.id
+        "user": {
+            "username": "john_doe",
+            "email": "john_doe@email.com",
+            "password": "unknown",
+            "role_id": role.id
+        }
     }
 
 
 @pytest.fixture
-def invalid_params():
+def create_invalid_params():
     return {
-        "username": "john_doe",
-        "email": "john_doe@email.com",
+        "user": {
+            "username": "john_doe",
+            "email": "john_doe@email.com",
+        }
+    }
+
+
+@pytest.fixture
+def edit_valid_params(role):
+    return {
+        "user": {"password": "unknown2"}
+    }
+
+
+@pytest.fixture
+def edit_invalid_params(role, other_user):
+    return {
+        "user": {"email": "raissa@email.com"}
     }
 
 
@@ -61,34 +88,34 @@ def test_delete_doesnt_exists(api_test_client):
     assert response.status_code == 422
 
 
-def test_post_valid(api_test_client, valid_params):
+def test_post_valid(api_test_client, create_valid_params):
     response = api_test_client.post('/users',
-                                    data=json.dumps({"user": valid_params}),
+                                    data=json.dumps(create_valid_params),
                                     headers={'Content-Type': 'application/json'})
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
     assert data['user']
 
 
-def test_post_invalid(api_test_client, invalid_params):
+def test_post_invalid(api_test_client, create_invalid_params):
     response = api_test_client.post('/users',
-                                    data=json.dumps({"user": invalid_params}),
+                                    data=json.dumps(create_invalid_params),
                                     headers={'Content-Type': 'application/json'})
     data = json.loads(response.data.decode('utf-8'))
     assert data["errors"]
     assert response.status_code == 422
 
 
-def test_put_valid(api_test_client, user, valid_params):
+def test_put_valid(api_test_client, user, edit_valid_params):
     response = api_test_client.put('/users/{}'.format(user.id),
-                                   data=json.dumps({"user": valid_params}),
+                                   data=json.dumps(edit_valid_params),
                                    headers={'Content-Type': 'application/json'})
     assert response.status_code == 204
 
 
-def test_put_invalid(api_test_client, user, invalid_params):
-    response = api_test_client.put('/users/{}'.format(user.id),
-                                   data=json.dumps({"user": invalid_params}),
+def test_put_invalid(api_test_client, user, other_user, edit_invalid_params):
+    response = api_test_client.put('/users/{}'.format(other_user.id),
+                                   data=json.dumps(edit_invalid_params),
                                    headers={'Content-Type': 'application/json'})
     data = json.loads(response.data.decode('utf-8'))
     assert data["errors"]

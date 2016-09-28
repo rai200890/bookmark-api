@@ -6,7 +6,8 @@ from bookmark_api.models import User
 
 from bookmark_api.resources.schemas import (
     UserListResponseSchema,
-    UserRequestSchema,
+    CreateUserRequestSchema,
+    EditUserRequestSchema,
     UserResponseSchema
 )
 
@@ -24,7 +25,7 @@ class UserResource(Resource):
         user = User.query.get_or_404(user_id)
         return UserResponseSchema().dump(user).data
 
-    @use_kwargs(UserRequestSchema)
+    @use_kwargs(CreateUserRequestSchema)
     def post(self, **kwargs):
         try:
             password = kwargs['user'].pop('password', None)
@@ -42,16 +43,16 @@ class UserResource(Resource):
             return None, 204
         return None, 422
 
-    @use_kwargs(UserRequestSchema)
+    @use_kwargs(EditUserRequestSchema)
     def put(self, user_id, **kwargs):
         try:
             user = User.query.filter_by(id=user_id).first()
             password = kwargs['user'].pop('password', None)
-            for attribute,value in kwargs['user'].items():
+            for attribute, value in kwargs['user'].items():
                 setattr(user, attribute, value)
             user.hash_password(password)
             db.session.add(user)
             db.session.commit()
             return None, 204
         except Exception as e:
-            return None, 422
+            return {'errors': e.args}, 422

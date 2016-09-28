@@ -17,7 +17,6 @@ class User(db.Model):
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
     bookmarks = db.relationship('Bookmark', backref='user', lazy='dynamic')
 
-
     def hash_password(self, password):
         self.password_hash = pwd_context.encrypt(password)
 

@@ -10,8 +10,10 @@ from flask_restful import Api
 dotenv_path = join(dirname(__file__), '.env')
 load_dotenv(dotenv_path)
 
+
 def parse_boolean(value):
     return value in ['True', 'true']
+
 
 app = Flask(__name__)
 
