@@ -27,5 +27,11 @@ class BookmarkResource(Resource):
 
     @use_kwargs(BookmarkRequestSchema)
     def post(self, **kwargs):
-        bookmark = Bookmark.create(**kwargs)
+        bookmark = Bookmark(**kwargs['bookmark'])
         return BookmarkResponseSchema().dump(bookmark).data
+
+    def delete(self, bookmark_id):
+        deleted_records = Bookmark.query.filter_by(id=bookmark_id).delete()
+        if deleted_records > 0:
+            return None, 204
+        return None, 422
