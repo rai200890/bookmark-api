@@ -25,3 +25,13 @@ def test_bookmark_details_get_exists(api_test_client, bookmark):
 def test_bookmark_details_get_doesnt_exists(api_test_client):
     response = api_test_client.get('/bookmarks/{}'.format(1))
     assert response.status_code == 404
+
+
+def test_bookmark_details_delete_exists(api_test_client, bookmark):
+    response = api_test_client.delete('/bookmarks/{}'.format(bookmark.id))
+    assert response.status_code == 204
+
+
+def test_bookmark_details_delete_doesnt_exists(api_test_client):
+    response = api_test_client.delete('/bookmarks/{}'.format(1))
+    assert response.status_code == 422
