@@ -1,12 +1,10 @@
-import pytest
-import unittest
 import json
 from bookmark_api import db
 from bookmark_api.models import Bookmark, User
 
 
 def setup_module():
-    user = User(username="raissa")
+    user = User(username="raissa", email="raissa@email.com")
     user.hash_password("farofa")
     db.session.add(user)
     bookmark = Bookmark(url="http://google.com", title="Google", user=user)

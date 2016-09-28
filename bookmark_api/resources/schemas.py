@@ -35,6 +35,7 @@ class BookmarkSchema(Schema):
 
 class BookmarkRequestSchema(Schema):
     bookmark = fields.Nested(BookmarkSchema)
+
     class Meta:
         strict = True
 

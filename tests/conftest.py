@@ -3,7 +3,7 @@ from os import environ
 import pytest
 
 from bookmark_api.app import app as _app
-from bookmark_api import db, models
+from bookmark_api import db
 
 
 def pytest_sessionstart(session):
@@ -11,6 +11,7 @@ def pytest_sessionstart(session):
         TESTING=True,
         SQLALCHEMY_DATABASE_URI=environ.get("SQLALCHEMY_DATABASE_URI_TEST")
     )
+    db.drop_all()
     db.create_all()
 
 
