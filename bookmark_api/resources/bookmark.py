@@ -7,7 +7,8 @@ from bookmark_api.models import Bookmark
 from bookmark_api.resources.schemas import (
     BookmarkListRequestSchema,
     BookmarkListResponseSchema,
-    BookmarkRequestSchema,
+    CreateBookmarkRequestSchema,
+    EditBookmarkRequestSchema,
     BookmarkResponseSchema
 )
 
@@ -26,7 +27,7 @@ class BookmarkResource(Resource):
         bookmark = Bookmark.query.get_or_404(bookmark_id)
         return BookmarkResponseSchema().dump(bookmark).data
 
-    @use_kwargs(BookmarkRequestSchema)
+    @use_kwargs(CreateBookmarkRequestSchema)
     def post(self, **kwargs):
         try:
             bookmark = Bookmark(**kwargs['bookmark'])
@@ -42,9 +43,13 @@ class BookmarkResource(Resource):
             return None, 204
         return None, 422
 
-    @use_kwargs(BookmarkRequestSchema)
+    @use_kwargs(EditBookmarkRequestSchema)
     def put(self, bookmark_id, **kwargs):
-        updated_records = Bookmark.query.filter_by(id=bookmark_id).update(kwargs["bookmark"])
-        if updated_records > 0:
+        try:
+            bookmark = Bookmark.query.filter_by(id=bookmark_id).first()
+            for attribute, value in kwargs['bookmark'].items():
+                setattr(bookmark, attribute, value)
+            db.session.commit()
             return None, 204
-        return None, 422
+        except Exception as e:
+            return {'errors': e.args}, 422
