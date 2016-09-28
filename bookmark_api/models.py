@@ -9,7 +9,7 @@ class Bookmark(db.Model):
     title = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    # __table_args__ = (UniqueConstraint('user_id', 'title', 'url', name='unique_user_id_title_url'),)
+    __table_args__ = (UniqueConstraint('user_id', 'title', 'url', name='unique_user_id_title_url'),)
 
 
 class User(db.Model):
