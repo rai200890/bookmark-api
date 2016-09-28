@@ -1,12 +1,15 @@
-from bookmark_api import db
 from passlib.apps import custom_app_context as pwd_context
+from sqlalchemy.schema import UniqueConstraint
+
+from bookmark_api import db
 
 
 class Bookmark(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    title = db.Column(db.String(200), unique=True, nullable=False)
+    title = db.Column(db.String(200), nullable=False)
     url = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    # __table_args__ = (UniqueConstraint('user_id', 'title', 'url', name='unique_user_id_title_url'),)
 
 
 class User(db.Model):

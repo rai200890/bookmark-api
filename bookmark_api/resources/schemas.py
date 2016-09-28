@@ -28,13 +28,32 @@ class BookmarkListRequestSchema(Schema):
 
 class BookmarkSchema(Schema):
     id = fields.Integer()
+    url = fields.Url()
+    title = fields.String()
+    user_id = fields.Integer()
+
+
+class CreateBookmarkSchema(Schema):
+    id = fields.Integer()
     url = fields.Url(required=True)
     title = fields.String(required=True)
     user_id = fields.Integer(required=True)
 
 
-class BookmarkRequestSchema(Schema):
-    bookmark = fields.Nested(BookmarkSchema)
+class EditBookmarkSchema(Schema):
+    url = fields.Url()
+    title = fields.String()
+
+
+class CreateBookmarkRequestSchema(Schema):
+    bookmark = fields.Nested(CreateBookmarkSchema)
+
+    class Meta:
+        strict = True
+
+
+class EditBookmarkRequestSchema(Schema):
+    bookmark = fields.Nested(EditBookmarkSchema)
 
     class Meta:
         strict = True

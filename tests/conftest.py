@@ -6,14 +6,21 @@ from bookmark_api.app import app as _app
 from bookmark_api import db
 
 
+def recreate_database():
+    try:
+        db.drop_all()
+        db.create_all()
+    except:
+        db.session.rollback()
+
+
 def pytest_sessionstart(session):
     _app.config.update(
         TESTING=True,
         SQLALCHEMY_DATABASE_URI=environ.get("SQLALCHEMY_DATABASE_URI_TEST"),
         SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
-    db.drop_all()
-    db.create_all()
+    recreate_database()
 
 
 @pytest.fixture(scope='session')
@@ -31,9 +38,7 @@ def app(request):
 @pytest.fixture(scope='function', autouse=True)
 def rollback(app, request):
     def fin():
-        db.session.rollback()
-        for tbl in reversed(db.metadata.sorted_tables):
-            db.engine.execute(tbl.delete())
+        recreate_database()
     request.addfinalizer(fin)
 
 
