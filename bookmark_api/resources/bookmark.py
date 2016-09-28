@@ -22,7 +22,7 @@ class BookmarkListResource(Resource):
 class BookmarkResource(Resource):
 
     def get(self, bookmark_id):
-        bookmark = Bookmark.get_or_404(bookmark_id)
+        bookmark = Bookmark.query.get_or_404(bookmark_id)
         return BookmarkResponseSchema().dump(bookmark).data
 
     @use_kwargs(BookmarkRequestSchema)

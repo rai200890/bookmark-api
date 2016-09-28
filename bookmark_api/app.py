@@ -5,8 +5,8 @@ from bookmark_api.resources.bookmark import (
 )
 
 
-api.add_resource(BookmarkListResource, '/bookmarks')
-api.add_resource(BookmarkResource, '/bookmarks/<id>')
+api.add_resource(BookmarkListResource, '/bookmarks', endpoint='bookmark_list')
+api.add_resource(BookmarkResource, '/bookmarks/<int:bookmark_id>', endpoint='bookmark_details')
 
 
 @app.route("/healthcheck")

@@ -19,8 +19,8 @@ class PaginationSchema(Schema):
 
 
 class BookmarkListRequestSchema(Schema):
-    per_page = fields.Integer(required=False)
-    page = fields.Integer(required=False)
+    per_page = fields.Integer(missing=15, required=False)
+    page = fields.Integer(missing=1, required=False)
 
     class Meta:
         strict = True
@@ -35,6 +35,7 @@ class BookmarkSchema(Schema):
 
 class BookmarkRequestSchema(Schema):
     bookmark = fields.Nested(BookmarkSchema)
+
     class Meta:
         strict = True
 
@@ -44,5 +45,5 @@ class BookmarkListResponseSchema(SelfSchema):
     pagination = fields.Nested(PaginationSchema, attribute="self")
 
 
-class BookmarkResponseSchema(Schema):
-    bookmark = fields.Nested(BookmarkSchema)
+class BookmarkResponseSchema(SelfSchema):
+    bookmark = fields.Nested(BookmarkSchema, attribute="self")
