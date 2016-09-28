@@ -1,6 +1,8 @@
 from flask_restful import Resource
-from webargs.flaskparser import use_kwargs
+from webargs.flaskparser import use_args, use_kwargs
+from sqlalchemy.exc import IntegrityError
 
+from bookmark_api import db
 from bookmark_api.models import Bookmark
 
 from bookmark_api.resources.schemas import (
@@ -25,10 +27,15 @@ class BookmarkResource(Resource):
         bookmark = Bookmark.query.get_or_404(bookmark_id)
         return BookmarkResponseSchema().dump(bookmark).data
 
-    @use_kwargs(BookmarkRequestSchema)
-    def post(self, **kwargs):
-        bookmark = Bookmark(**kwargs['bookmark'])
-        return BookmarkResponseSchema().dump(bookmark).data
+    @use_args(BookmarkRequestSchema)
+    def post(self, args):
+        try:
+            bookmark = Bookmark(**args['bookmark'])
+            db.session.add(bookmark)
+            result = db.session.commit()
+            return BookmarkResponseSchema().dump(bookmark).data
+        except Exception as e:
+            return {'errors': e.args}, 422
 
     def delete(self, bookmark_id):
         deleted_records = Bookmark.query.filter_by(id=bookmark_id).delete()

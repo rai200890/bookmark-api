@@ -31,6 +31,8 @@ def app(request):
 def rollback(app, request):
     def fin():
         db.session.rollback()
+        for tbl in reversed(db.metadata.sorted_tables):
+            db.engine.execute(tbl.delete())
     request.addfinalizer(fin)
 
 
