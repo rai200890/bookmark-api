@@ -1,6 +1,5 @@
 from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
-from sqlalchemy.orm.exc import NoResultFound
 
 from bookmark_api.models import Bookmark
 
