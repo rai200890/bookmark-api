@@ -1,6 +1,8 @@
 from flask import jsonify
+from flask_jwt import JWT
 
 from bookmark_api import app, db, api
+from bookmark_api.models import User
 from bookmark_api.resources.bookmark import (
     BookmarkListResource,
     BookmarkResource
@@ -9,6 +11,20 @@ from bookmark_api.resources.user import (
     UserListResource,
     UserResource
 )
+
+
+def authenticate(username, password):
+    user = User.query.filter_by(username=username).first()
+    if user and user.verify_password(password):
+        return user
+
+
+def identity(payload):
+    user_id = payload['identity']
+    return User.query.get(user_id)
+
+
+jwt = JWT(app, authenticate, identity)
 
 
 api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
