@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from os import environ
 from datetime import timedelta
 import pytest
@@ -68,6 +69,6 @@ def admin_auth_headers(api_test_client, admin):
     data = json.loads(response.data.decode('utf-8'))
     token = data["access_token"]
     return {
-        "Content-Type": "application/json",
+        "Content-type": "application/json",
         "Authorization": "JWT {}".format(token)
     }
