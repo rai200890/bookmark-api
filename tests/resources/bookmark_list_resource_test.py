@@ -14,8 +14,8 @@ def setup_module():
     db.session.flush()
 
 
-def test_bookmark_list_get(api_test_client, auth_headers):
-    response = api_test_client.get("/bookmarks?per_page=15&page=1", headers=auth_headers)
+def test_bookmark_list_get(api_test_client, admin_auth_headers):
+    response = api_test_client.get("/bookmarks?per_page=15&page=1", headers=admin_auth_headers)
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
     assert len(data['bookmarks']) == 1

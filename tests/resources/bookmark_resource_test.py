@@ -69,49 +69,49 @@ def edit_valid_params():
     }
 
 
-def test_get_exists(api_test_client, bookmark, auth_headers):
-    response = api_test_client.get('/bookmarks/{}'.format(bookmark.id), headers=auth_headers)
+def test_get_exists(api_test_client, bookmark, admin_auth_headers):
+    response = api_test_client.get('/bookmarks/{}'.format(bookmark.id), headers=admin_auth_headers)
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
     assert data['bookmark']
 
 
-def test_get_doesnt_exist(api_test_client, auth_headers):
-    response = api_test_client.get('/bookmarks/{}'.format(0), headers=auth_headers)
+def test_get_doesnt_exist(api_test_client, admin_auth_headers):
+    response = api_test_client.get('/bookmarks/{}'.format(0), headers=admin_auth_headers)
     assert response.status_code == 404
 
 
-def test_delete_exists(api_test_client, bookmark, auth_headers):
-    response = api_test_client.delete('/bookmarks/{}'.format(bookmark.id), headers=auth_headers)
+def test_delete_exists(api_test_client, bookmark, admin_auth_headers):
+    response = api_test_client.delete('/bookmarks/{}'.format(bookmark.id), headers=admin_auth_headers)
     assert response.status_code == 204
 
 
-def test_delete_doesnt_exist(api_test_client, bookmark, auth_headers):
+def test_delete_doesnt_exist(api_test_client, bookmark, admin_auth_headers):
     Bookmark.query.filter_by(id=bookmark.id).delete()
-    response = api_test_client.delete('/bookmarks/{}'.format(bookmark.id), headers=auth_headers)
+    response = api_test_client.delete('/bookmarks/{}'.format(bookmark.id), headers=admin_auth_headers)
     assert response.status_code == 422
 
 
-def test_post_valid(api_test_client, create_valid_params, auth_headers):
+def test_post_valid(api_test_client, create_valid_params, admin_auth_headers):
     response = api_test_client.post('/bookmarks',
                                     data=json.dumps(create_valid_params),
-                                    headers=auth_headers)
+                                    headers=admin_auth_headers)
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
     assert data['bookmark']
 
 
-def test_post_invalid_params_missing(api_test_client, create_invalid_params_missing, auth_headers):
+def test_post_invalid_params_missing(api_test_client, create_invalid_params_missing, admin_auth_headers):
     response = api_test_client.post('/bookmarks',
                                     data=json.dumps(create_invalid_params_missing),
-                                    headers=auth_headers)
+                                    headers=admin_auth_headers)
     data = json.loads(response.data.decode('utf-8'))
     assert data["errors"]
     assert response.status_code == 422
 
 
-def test_put_valid(api_test_client, bookmark, edit_valid_params, auth_headers):
+def test_put_valid(api_test_client, bookmark, edit_valid_params, admin_auth_headers):
     response = api_test_client.put('/bookmarks/{}'.format(bookmark.id),
                                    data=json.dumps(edit_valid_params),
-                                   headers=auth_headers)
+                                   headers=admin_auth_headers)
     assert response.status_code == 204

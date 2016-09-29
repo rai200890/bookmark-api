@@ -1,5 +1,5 @@
 from os import environ
-
+from datetime import timedelta
 import pytest
 import json
 
@@ -20,9 +20,7 @@ def pytest_sessionstart(session):
     _app.config.update(
         TESTING=True,
         SQLALCHEMY_DATABASE_URI=environ.get("SQLALCHEMY_DATABASE_URI_TEST"),
-        SQLALCHEMY_TRACK_MODIFICATIONS=False,
-        JWT_VERIFY=False,
-        JWT_VERIFY_EXPIRATION=False
+        SQLALCHEMY_TRACK_MODIFICATIONS=False
     )
     recreate_database()
 
@@ -33,9 +31,7 @@ def app(request):
     ctx.push()
 
     def teardown():
-        ctx.pop()
-
-    request.addfinalizer(teardown)
+        request.addfinalizer(teardown)
     return _app
 
 
@@ -46,22 +42,32 @@ def rollback(app, request):
     request.addfinalizer(fin)
 
 
-@pytest.fixture(scope='session')
-def api_test_client(app):
-    return app.test_client()
-
-
-@pytest.fixture(scope="function")
-def auth_headers(api_test_client):
+@pytest.fixture
+def admin():
     user = User(username="admin", email="admin@email.com")
     password = "admin"
     user.hash_password(password)
     db.session.add(user)
+    db.session.flush()
+    return user
+
+
+@pytest.fixture
+def api_test_client(app, mocker, admin):
+    test_client = app.test_client()
+    mocker.patch("bookmark_api.app.identity", return_value=admin)
+    mocker.patch("bookmark_api.app.authenticate", return_value=True)
+    return test_client
+
+
+@pytest.fixture
+def admin_auth_headers(api_test_client, admin):
     response = api_test_client.post("/auth",
-                                    data=json.dumps({"username": user.username, "password": password}),
+                                    data=json.dumps({"username": admin.username, "password": "admin"}),
                                     headers={"Content-Type": "application/json"})
     data = json.loads(response.data.decode('utf-8'))
+    token = data["access_token"]
     return {
         "Content-Type": "application/json",
-        "Authorization": "JWT {}".format(data["access_token"])
+        "Authorization": "JWT {}".format(token)
     }
