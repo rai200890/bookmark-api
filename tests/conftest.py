@@ -65,10 +65,11 @@ def api_test_client(app, mocker, admin):
 def admin_auth_headers(api_test_client, admin):
     response = api_test_client.post("/auth",
                                     data=json.dumps({"username": admin.username, "password": "admin"}),
-                                    headers={"Content-Type": "application/json"})
+                                    headers={u'content-type': "application/json; charset=utf8"})
     data = json.loads(response.data.decode('utf-8'))
     token = data["access_token"]
-    return {
-        "Content-type": "application/json",
-        "Authorization": "JWT {}".format(token)
+    headers = {
+        u'content-type': "application/json; charset=utf-8",
+        u'authorization': "JWT {}".format(token)
     }
+    return headers
