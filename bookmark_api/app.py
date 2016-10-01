@@ -2,7 +2,6 @@ from flask import jsonify
 from flask_jwt import JWT
 from flask_principal import (
     Principal,
-    Permission,
     RoleNeed,
     UserNeed,
     Identity,
@@ -13,7 +12,7 @@ from flask_principal import (
 )
 
 from bookmark_api import app, db, api
-from bookmark_api.models import User
+from bookmark_api.models import User, Bookmark
 from bookmark_api.resources.bookmark import (
     BookmarkListResource,
     BookmarkResource
@@ -21,6 +20,12 @@ from bookmark_api.resources.bookmark import (
 from bookmark_api.resources.user import (
     UserListResource,
     UserResource
+)
+
+from bookmark_api.permission import (
+    ViewBookmarkNeed,
+    DeleteBookmarkNeed,
+    EditBookmarkNeed
 )
 
 
@@ -46,17 +51,21 @@ def on_identity_loaded(sender, identity):
     if user is not None:
         identity.user = user
         identity.provides.add(UserNeed(user.id))
-        if user.role is not None:
-            identity.provides.add(RoleNeed(user.role.name))
+        identity.provides.add(RoleNeed(user.role.name))
+        if user.role.name == 'client':
+            for bookmark in user.bookmarks:
+                identity.provides.add(ViewBookmarkNeed(bookmark.id))
+                identity.provides.add(DeleteBookmarkNeed(bookmark.id))
+                identity.provides.add(EditBookmarkNeed(bookmark.id))
+
+        if user.role.name == 'admin':
+            for bookmark in Bookmark.query.all():
+                identity.provides.add(ViewBookmarkNeed(bookmark.id))
 
 
 jwt = JWT(app, authenticate, identity)
 
 principal = Principal(app)
-
-admin_permission = Permission(RoleNeed('admin'))
-client_permission = Permission(RoleNeed('client'))
-
 
 # API ENDPOINTS
 api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
