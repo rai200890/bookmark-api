@@ -11,3 +11,4 @@ Flask-Script==2.0.5
 PyJWT==1.4.2
 passlib==1.6.5
 Flask-JWT==0.3.2
+Flask-Principal==0.4.0

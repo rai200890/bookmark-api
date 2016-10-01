@@ -1,12 +1,10 @@
-# -*- coding: utf-8 -*-
 from os import environ
-from datetime import timedelta
 import pytest
 import json
 
 from bookmark_api.app import app as _app
 from bookmark_api import db
-from bookmark_api.models import User
+from bookmark_api.models import User, Role
 
 
 def recreate_database():
@@ -18,15 +16,14 @@ def recreate_database():
 
 
 def pytest_sessionstart(session):
-    _app.config.update(
-        TESTING=True,
-        SQLALCHEMY_DATABASE_URI=environ.get("SQLALCHEMY_DATABASE_URI_TEST"),
-        SQLALCHEMY_TRACK_MODIFICATIONS=False
-    )
+    _app.config['SQLALCHEMY_DATABASE_URI'] = environ.get("SQLALCHEMY_DATABASE_URI_TEST")
+    _app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+    _app.config['TESTING'] = True
+    _app.config['SECRET_KEY'] = "super-secret"
     recreate_database()
 
 
-@pytest.fixture(scope='session')
+@pytest.fixture(scope="session")
 def app(request):
     ctx = _app.app_context()
     ctx.push()
@@ -36,40 +33,86 @@ def app(request):
     return _app
 
 
-@pytest.fixture(scope='function', autouse=True)
+@pytest.fixture(autouse=True)
 def rollback(app, request):
     def fin():
         recreate_database()
+
     request.addfinalizer(fin)
 
 
-@pytest.fixture
-def admin():
-    user = User(username="admin", email="admin@email.com")
-    password = "admin"
-    user.hash_password(password)
+@pytest.fixture(scope="session")
+def admin_credentials():
+    return {"username":"admin", "password": "admin"}
+
+
+@pytest.fixture(scope="session")
+def client_credentials():
+    return {"username":"client", "password": "client"}
+
+
+@pytest.fixture(scope="function", autouse=True)
+def admin_role():
+    role = Role(name="admin")
+    db.session.add(role)
+    db.session.commit()
+    return role
+
+
+@pytest.fixture(scope="function", autouse=True)
+def client_role():
+    role = Role(name="client")
+    db.session.add(role)
+    db.session.commit()
+    return role
+
+
+@pytest.fixture(scope="function", autouse=True)
+def admin(admin_credentials, admin_role):
+    user = User(username=admin_credentials["username"], email="admin@email.com")
+    user.hash_password(admin_credentials["password"])
+    user.role = admin_role
     db.session.add(user)
-    db.session.flush()
+    return user
+
+
+@pytest.fixture(scope="function", autouse=True)
+def client(client_credentials, client_role):
+    user = User(username=client_credentials["username"], email="client@email.com")
+    user.hash_password(client_credentials["password"])
+    user.role = client_role
+    db.session.add(user)
     return user
 
 
 @pytest.fixture
-def api_test_client(app, mocker, admin):
-    test_client = app.test_client()
-    mocker.patch("bookmark_api.app.identity", return_value=admin)
-    mocker.patch("bookmark_api.app.authenticate", return_value=True)
-    return test_client
+def api_test_client(app):
+    return app.test_client()
 
 
 @pytest.fixture
-def admin_auth_headers(api_test_client, admin):
+def client_auth_headers(api_test_client, client_credentials):
     response = api_test_client.post("/auth",
-                                    data=json.dumps({"username": admin.username, "password": "admin"}),
-                                    headers={u'content-type': "application/json; charset=utf8"})
-    data = json.loads(response.data.decode('utf-8'))
+                                data=json.dumps({"username": client_credentials["username"], "password": client_credentials["password"]}),
+                                headers={"content-type": "application/json; charset=utf8"})
+    data = json.loads(response.data.decode("utf-8"))
     token = data["access_token"]
     headers = {
-        u'content-type': "application/json; charset=utf-8",
-        u'authorization': "JWT {}".format(token)
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": "JWT {}".format(token)
+    }
+    return headers
+
+
+@pytest.fixture
+def admin_auth_headers(api_test_client, admin_credentials):
+    response = api_test_client.post("/auth",
+                            data=json.dumps({"username": admin_credentials["username"], "password": admin_credentials["password"]}),
+                            headers={"content-type": "application/json; charset=utf8"})
+    data = json.loads(response.data.decode("utf-8"))
+    token = data["access_token"]
+    headers = {
+                "Content-Type": "application/json; charset=utf-8",
+                "Authorization": "JWT {}".format(token)
     }
     return headers

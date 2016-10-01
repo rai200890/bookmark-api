@@ -6,4 +6,5 @@ pytest-cov==2.2.1
 codeclimate-test-reporter==0.1.2
 responses==0.5.1
 pytest-mock==1.2
+factory-boy==2.7.0
 -e .

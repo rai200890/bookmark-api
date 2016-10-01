@@ -37,7 +37,6 @@ class CreateBookmarkSchema(Schema):
     id = fields.Integer()
     url = fields.Url(required=True)
     title = fields.String(required=True)
-    user_id = fields.Integer(required=True)
 
 
 class EditBookmarkSchema(Schema):

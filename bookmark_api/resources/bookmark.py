@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
-from flask_jwt import jwt_required
+from flask_jwt import jwt_required, current_identity
+from sqlalchemy.exc import SQLAlchemyError
 
 from bookmark_api import db
 from bookmark_api.models import Bookmark
@@ -34,11 +35,13 @@ class BookmarkResource(Resource):
     @use_kwargs(CreateBookmarkRequestSchema)
     def post(self, **kwargs):
         try:
-            bookmark = Bookmark(**kwargs['bookmark'])
+            params = kwargs['bookmark']
+            params["user_id"] = current_identity.id
+            bookmark = Bookmark(**params)
             db.session.add(bookmark)
             db.session.commit()
             return BookmarkResponseSchema().dump(bookmark).data
-        except Exception as e:
+        except SQLAlchemyError as e:
             return {'errors': e.args}, 422
 
     @jwt_required()
@@ -57,5 +60,5 @@ class BookmarkResource(Resource):
                 setattr(bookmark, attribute, value)
             db.session.commit()
             return None, 204
-        except Exception as e:
+        except SQLAlchemyError as e:
             return {'errors': e.args}, 422

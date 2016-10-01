@@ -18,6 +18,7 @@ class User(db.Model):
     email = db.Column(db.String(200), unique=True, nullable=False)
     password_hash = db.Column(db.String(128), nullable=False)
     role_id = db.Column(db.Integer, db.ForeignKey('role.id'))
+    role = db.relationship('Role', backref='user')
     bookmarks = db.relationship('Bookmark', backref='user', lazy='dynamic')
 
     def hash_password(self, password):

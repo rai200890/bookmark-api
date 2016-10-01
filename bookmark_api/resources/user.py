@@ -1,6 +1,7 @@
 from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
 from flask_jwt import jwt_required
+from sqlalchemy.exc import SQLAlchemyError
 
 from bookmark_api import db
 from bookmark_api.models import User
@@ -38,7 +39,7 @@ class UserResource(Resource):
             db.session.add(user)
             db.session.commit()
             return UserResponseSchema().dump(user).data
-        except Exception as e:
+        except SQLAlchemyError as e:
             return {'errors': e.args}, 422
 
     @jwt_required()
@@ -60,5 +61,5 @@ class UserResource(Resource):
             db.session.add(user)
             db.session.commit()
             return None, 204
-        except Exception as e:
+        except SQLAlchemyError as e:
             return {'errors': e.args}, 422
