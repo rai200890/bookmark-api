@@ -7,10 +7,9 @@ import pytest
 def create_valid_params():
     return {
         "user": {
-            "username": "john_doe",
-            "email": "john_doe@email.com",
-            "password": "unknown",
-            "role_id": 2
+            "username": "joe_doe",
+            "email": "joe_doe@email.com",
+            "password": "unknown"
         }
     }
 
@@ -25,7 +24,7 @@ def create_invalid_params():
     }
 
 
-def test_post_valid(api_test_client, create_valid_params, client_auth_headers):
+def test_post_valid(api_test_client, create_valid_params, client, client_auth_headers):
     response = api_test_client.post('/users',
                                     data=json.dumps(create_valid_params),
                                     headers=client_auth_headers)

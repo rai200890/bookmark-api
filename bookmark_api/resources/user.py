@@ -1,6 +1,6 @@
 from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
-from flask_jwt import jwt_required
+from flask_jwt import jwt_required, current_identity
 from sqlalchemy.exc import SQLAlchemyError
 
 from bookmark_api import db
@@ -22,6 +22,7 @@ from bookmark_api.resources.common import (
     assign_attributes,
     handle_delete
 )
+from bookmark_api.models import Role
 
 
 class UserListResource(Resource):
@@ -45,9 +46,8 @@ class UserResource(Resource):
     @use_kwargs(CreateUserRequestSchema)
     def post(self, **kwargs):
         try:
-            password = kwargs['user'].pop('password', None)
-            user = User(**kwargs['user'])
-            user.hash_password(password)
+            user = User()
+            self._assign_attributes(user, kwargs['user'])
             db.session.add(user)
             db.session.commit()
             return UserResponseSchema().dump(user).data
@@ -66,13 +66,21 @@ class UserResource(Resource):
     def put(self, user_id, **kwargs):
         try:
             user = User.query.filter_by(id=user_id).first()
-            password = kwargs['user'].pop('password', None)
-            if user.role.name == 'client':
-                kwargs['user'].pop('role_id', None)
-            assign_attributes(user, kwargs['user'])
-            user.hash_password(password)
+            self._assign_attributes(user, kwargs['user'])
             db.session.add(user)
             db.session.commit()
             return None, 204
         except SQLAlchemyError as e:
             return {'errors': e.args}, 422
+
+    @staticmethod
+    def _assign_attributes(instance, params):
+        role_id = params.pop('role_id', None)
+        if current_identity.role.name == 'client':
+            role = Role.query.filter_by(name='client').first()
+            role_id = role.id
+        params.update({"role_id": role_id})
+        password = params.pop('password', None)
+        if password is not None:
+            instance.hash_password(password)
+        assign_attributes(instance, params)
