@@ -4,7 +4,8 @@ from functools import partial, wraps
 from flask import abort
 from flask_principal import (
     Permission,
-    RoleNeed
+    RoleNeed,
+    ItemNeed
 )
 from bookmark_api.models import (
     User,
@@ -32,7 +33,7 @@ class ViewBookmarkPermission(Permission):
 
 class DeleteBookmarkPermission(Permission):
     def __init__(self, id):
-        need = ViewBookmarkNeed(id)
+        need = DeleteBookmarkNeed(id)
         super(DeleteBookmarkPermission, self).__init__(need)
 
 
@@ -82,14 +83,22 @@ def provide_permissions(identity):
     role_name = user.role.name
     identity.provides.add(RoleNeed(role_name))
     if role_name == 'client':
-        for bookmark in user.bookmarks:
-            for need_class in [ViewBookmarkNeed, DeleteBookmarkNeed, EditBookmarkNeed]:
-                identity.provides.add(need_class(bookmark.id))
-        identity.provides.add(ViewUserNeed(user.id))
-        identity.provides.add(EditUserNeed(user.id))
+        _provide_client_permissions(identity)
     elif role_name == 'admin':
-        for bookmark in Bookmark.query.all():
-            identity.provides.add(ViewBookmarkNeed(bookmark.id))
-        for user in User.query.all():
-            for need_class in [ViewUserNeed, EditUserNeed, DeleteUserNeed]:
-                identity.provides.add(need_class(user.id))
+        _provide_admin_permissions(identity)
+
+
+def _provide_client_permissions(identity):
+    for bookmark in identity.user.bookmarks:
+        for need_class in [ViewBookmarkNeed, DeleteBookmarkNeed, EditBookmarkNeed]:
+            identity.provides.add(need_class(bookmark.id))
+    identity.provides.add(ViewUserNeed(identity.user.id))
+    identity.provides.add(EditUserNeed(identity.user.id))
+
+
+def _provide_admin_permissions(identity):
+    for bookmark in Bookmark.query.all():
+        identity.provides.add(ViewBookmarkNeed(bookmark.id))
+    for user in User.query.all():
+        for need_class in [ViewUserNeed, EditUserNeed, DeleteUserNeed]:
+            identity.provides.add(need_class(user.id))
