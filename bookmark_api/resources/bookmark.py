@@ -20,7 +20,10 @@ from bookmark_api.authorization import (
     DeleteBookmarkPermission,
     requires_permission
 )
-from bookmark_api.resources.common import assign_attributes
+from bookmark_api.resources.common import (
+    assign_attributes,
+    handle_delete
+)
 
 
 class BookmarkListResource(Resource):
@@ -60,10 +63,7 @@ class BookmarkResource(Resource):
     @jwt_required()
     @requires_permission(permission_class=DeleteBookmarkPermission, field='bookmark_id')
     def delete(self, bookmark_id):
-        deleted_records = Bookmark.query.filter_by(id=bookmark_id).delete()
-        if deleted_records > 0:
-            return None, 204
-        return None, 422
+        return handle_delete(Bookmark, bookmark_id)
 
     @jwt_required()
     @requires_permission(permission_class=EditBookmarkPermission, field='bookmark_id')

@@ -18,7 +18,10 @@ from bookmark_api.authorization import (
     EditUserPermission,
     DeleteUserPermission
 )
-from bookmark_api.resources.common import assign_attributes
+from bookmark_api.resources.common import (
+    assign_attributes,
+    handle_delete
+)
 
 
 class UserListResource(Resource):
@@ -55,10 +58,7 @@ class UserResource(Resource):
     @requires_permission(permission_class=DeleteUserPermission, field='user_id')
     @admin_permission.require()
     def delete(self, user_id):
-        deleted_records = User.query.filter_by(id=user_id).delete()
-        if deleted_records > 0:
-            return None, 204
-        return None, 422
+        return handle_delete(User, user_id)
 
     @jwt_required()
     @requires_permission(permission_class=EditUserPermission, field='user_id')
