@@ -1,10 +1,15 @@
+from collections import namedtuple
+from functools import partial, wraps
+
 from flask import abort
 from flask_principal import (
     Permission,
     RoleNeed
 )
-from collections import namedtuple
-from functools import partial, wraps
+from bookmark_api.models import (
+    User,
+    Bookmark
+)
 
 
 BookmarkNeed = namedtuple('bookmark', ['method', 'value'])
@@ -70,3 +75,21 @@ def requires_permission(**params):
             return abort(403)
         return wrapped
     return wrapper
+
+
+def provide_permissions(identity):
+    user = identity.user
+    role_name = user.role.name
+    identity.provides.add(RoleNeed(role_name))
+    if role_name == 'client':
+        for bookmark in user.bookmarks:
+            for need_class in [ViewBookmarkNeed, DeleteBookmarkNeed, EditBookmarkNeed]:
+                identity.provides.add(need_class(bookmark.id))
+        identity.provides.add(ViewUserNeed(user.id))
+        identity.provides.add(EditUserNeed(user.id))
+    elif role_name == 'admin':
+        for bookmark in Bookmark.query.all():
+            identity.provides.add(ViewBookmarkNeed(bookmark.id))
+        for user in User.query.all():
+            for need_class in [ViewUserNeed, EditUserNeed, DeleteUserNeed]:
+                identity.provides.add(need_class(user.id))

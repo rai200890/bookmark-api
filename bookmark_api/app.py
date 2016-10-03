@@ -2,7 +2,6 @@ from flask import jsonify
 from flask_jwt import JWT
 from flask_principal import (
     Principal,
-    RoleNeed,
     Identity,
     AnonymousIdentity,
     identity_changed,
@@ -11,7 +10,7 @@ from flask_principal import (
 )
 
 from bookmark_api import app, db, api
-from bookmark_api.models import User, Bookmark
+from bookmark_api.models import User
 from bookmark_api.resources.bookmark import (
     BookmarkListResource,
     BookmarkResource
@@ -20,15 +19,7 @@ from bookmark_api.resources.user import (
     UserListResource,
     UserResource
 )
-
-from bookmark_api.permission import (
-    ViewBookmarkNeed,
-    DeleteBookmarkNeed,
-    EditBookmarkNeed,
-    ViewUserNeed,
-    DeleteUserNeed,
-    EditUserNeed
-)
+from bookmark_api.authorization import provide_permissions
 
 
 def authenticate(username, password):
@@ -49,25 +40,9 @@ def identity(payload):
 
 @identity_loaded.connect_via(app)
 def on_identity_loaded(sender, identity):
-    user = User.query.filter_by(id=identity.id).first()
-    if user is not None:
-        identity.user = user
-        identity.provides.add(RoleNeed(user.role.name))
-        if user.role.name == 'client':
-            for bookmark in user.bookmarks:
-                identity.provides.add(ViewBookmarkNeed(bookmark.id))
-                identity.provides.add(DeleteBookmarkNeed(bookmark.id))
-                identity.provides.add(EditBookmarkNeed(bookmark.id))
-            identity.provides.add(ViewUserNeed(user.id))
-            identity.provides.add(EditUserNeed(user.id))
-
-        if user.role.name == 'admin':
-            for bookmark in Bookmark.query.all():
-                identity.provides.add(ViewBookmarkNeed(bookmark.id))
-            for user in User.query.all():
-                identity.provides.add(ViewUserNeed(user.id))
-                identity.provides.add(EditUserNeed(user.id))
-                identity.provides.add(DeleteUserNeed(user.id))
+    user = User.query.filter_by(id=identity.id).one()
+    identity.user = user
+    provide_permissions(identity)
 
 
 jwt = JWT(app, authenticate, identity)

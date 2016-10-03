@@ -11,7 +11,7 @@ from bookmark_api.resources.schemas import (
     EditUserRequestSchema,
     UserResponseSchema
 )
-from bookmark_api.permission import (
+from bookmark_api.authorization import (
     requires_permission,
     admin_permission,
     ViewUserPermission,

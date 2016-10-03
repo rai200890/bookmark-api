@@ -13,7 +13,7 @@ from bookmark_api.resources.schemas import (
     EditBookmarkRequestSchema,
     BookmarkResponseSchema
 )
-from bookmark_api.permission import (
+from bookmark_api.authorization import (
     client_permission,
     ViewBookmarkPermission,
     EditBookmarkPermission,
