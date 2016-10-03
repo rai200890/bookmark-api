@@ -4,8 +4,7 @@ from functools import partial, wraps
 from flask import abort
 from flask_principal import (
     Permission,
-    RoleNeed,
-    ItemNeed
+    RoleNeed
 )
 from bookmark_api.models import (
     User,
