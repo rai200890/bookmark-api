@@ -1,6 +1,3 @@
-from functools import wraps
-
-from flask import abort
 from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
 from flask_jwt import jwt_required, current_identity
@@ -16,26 +13,14 @@ from bookmark_api.resources.schemas import (
     EditBookmarkRequestSchema,
     BookmarkResponseSchema
 )
-
-
 from bookmark_api.permission import (
     client_permission,
     ViewBookmarkPermission,
     EditBookmarkPermission,
-    DeleteBookmarkPermission
+    DeleteBookmarkPermission,
+    requires_permission
 )
-
-
-def requires_permission(permission_klass):
-    def wrapper(f):
-        @wraps(f)
-        def wrapped(*args, **kwargs):
-            permission = permission_klass(kwargs["bookmark_id"])
-            if permission.can():
-                return f(*args, **kwargs)
-            return abort(403)
-        return wrapped
-    return wrapper
+from bookmark_api.resources.common import assign_attributes
 
 
 class BookmarkListResource(Resource):
@@ -53,7 +38,7 @@ class BookmarkListResource(Resource):
 class BookmarkResource(Resource):
 
     @jwt_required()
-    @requires_permission(ViewBookmarkPermission)
+    @requires_permission(permission_class=ViewBookmarkPermission, field='bookmark_id')
     def get(self, bookmark_id):
         bookmark = Bookmark.query.get_or_404(bookmark_id)
         return BookmarkResponseSchema().dump(bookmark).data
@@ -73,7 +58,7 @@ class BookmarkResource(Resource):
             return {'errors': e.args}, 422
 
     @jwt_required()
-    @requires_permission(DeleteBookmarkPermission)
+    @requires_permission(permission_class=DeleteBookmarkPermission, field='bookmark_id')
     def delete(self, bookmark_id):
         deleted_records = Bookmark.query.filter_by(id=bookmark_id).delete()
         if deleted_records > 0:
@@ -81,13 +66,12 @@ class BookmarkResource(Resource):
         return None, 422
 
     @jwt_required()
-    @requires_permission(EditBookmarkPermission)
+    @requires_permission(permission_class=EditBookmarkPermission, field='bookmark_id')
     @use_kwargs(EditBookmarkRequestSchema)
     def put(self, bookmark_id, **kwargs):
         try:
             bookmark = Bookmark.query.filter_by(id=bookmark_id).first()
-            for attribute, value in kwargs['bookmark'].items():
-                setattr(bookmark, attribute, value)
+            assign_attributes(bookmark, kwargs['bookmark'])
             db.session.commit()
             return None, 204
         except SQLAlchemyError as e:

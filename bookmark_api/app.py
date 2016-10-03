@@ -3,7 +3,6 @@ from flask_jwt import JWT
 from flask_principal import (
     Principal,
     RoleNeed,
-    UserNeed,
     Identity,
     AnonymousIdentity,
     identity_changed,
@@ -25,7 +24,10 @@ from bookmark_api.resources.user import (
 from bookmark_api.permission import (
     ViewBookmarkNeed,
     DeleteBookmarkNeed,
-    EditBookmarkNeed
+    EditBookmarkNeed,
+    ViewUserNeed,
+    DeleteUserNeed,
+    EditUserNeed
 )
 
 
@@ -50,17 +52,22 @@ def on_identity_loaded(sender, identity):
     user = User.query.filter_by(id=identity.id).first()
     if user is not None:
         identity.user = user
-        identity.provides.add(UserNeed(user.id))
         identity.provides.add(RoleNeed(user.role.name))
         if user.role.name == 'client':
             for bookmark in user.bookmarks:
                 identity.provides.add(ViewBookmarkNeed(bookmark.id))
                 identity.provides.add(DeleteBookmarkNeed(bookmark.id))
                 identity.provides.add(EditBookmarkNeed(bookmark.id))
+            identity.provides.add(ViewUserNeed(user.id))
+            identity.provides.add(EditUserNeed(user.id))
 
         if user.role.name == 'admin':
             for bookmark in Bookmark.query.all():
                 identity.provides.add(ViewBookmarkNeed(bookmark.id))
+            for user in User.query.all():
+                identity.provides.add(ViewUserNeed(user.id))
+                identity.provides.add(EditUserNeed(user.id))
+                identity.provides.add(DeleteUserNeed(user.id))
 
 
 jwt = JWT(app, authenticate, identity)

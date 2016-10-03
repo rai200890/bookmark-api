@@ -34,8 +34,8 @@ def test_put_bookmark_current_client(api_test_client, bookmark_current_client, e
     response = api_test_client.put('/bookmarks/{}'.format(bookmark_current_client.id),
                                    data=json.dumps(edit_valid_params),
                                    headers=client_auth_headers)
-    b = Bookmark.query.get(bookmark_current_client.id)
-    assert b.url == edit_valid_params["bookmark"]["url"]
+    bookmark = Bookmark.query.get(bookmark_current_client.id)
+    assert bookmark.url == edit_valid_params["bookmark"]["url"]
     assert response.status_code == 204
 
 

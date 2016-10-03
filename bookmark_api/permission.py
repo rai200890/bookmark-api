@@ -1,9 +1,10 @@
+from flask import abort
 from flask_principal import (
     Permission,
     RoleNeed
 )
 from collections import namedtuple
-from functools import partial
+from functools import partial, wraps
 
 
 BookmarkNeed = namedtuple('bookmark', ['method', 'value'])
@@ -56,3 +57,16 @@ class EditUserPermission(Permission):
 
 admin_permission = Permission(RoleNeed('admin'))
 client_permission = Permission(RoleNeed('client'))
+
+
+def requires_permission(**params):
+    def wrapper(f):
+        @wraps(f)
+        def wrapped(*args, **kwargs):
+            id = kwargs[params['field']]
+            permission = params['permission_class'](id)
+            if permission.can():
+                return f(*args, **kwargs)
+            return abort(403)
+        return wrapped
+    return wrapper

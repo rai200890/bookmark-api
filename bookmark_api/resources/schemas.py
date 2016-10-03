@@ -76,7 +76,6 @@ class CreateUserSchema(Schema):
 
 
 class EditUserSchema(Schema):
-    id = fields.Integer()
     email = fields.Email()
     password = fields.String()
     role_id = fields.Integer()
@@ -84,9 +83,9 @@ class EditUserSchema(Schema):
 
 class UserSchema(Schema):
     id = fields.Integer()
-    username = fields.String(required=True)
-    email = fields.Email(required=True)
-    role_id = fields.Integer(required=True)
+    username = fields.String()
+    email = fields.Email()
+    role_id = fields.Integer()
 
 
 class CreateUserRequestSchema(Schema):

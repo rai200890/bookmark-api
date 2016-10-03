@@ -43,6 +43,7 @@ def admin(session, admin_credentials, admin_role):
         user.hash_password(admin_credentials["password"])
         user.role = admin_role
         session.add(user)
+        session.flush()
     return user
 
 
@@ -54,20 +55,24 @@ def client(session, client_credentials, client_role):
         user.hash_password(client_credentials["password"])
         user.role = client_role
         session.add(user)
+        session.flush()
     return user
 
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="function", autouse=True)
 def other_client(session, client_role):
-    user = User(username="joe", email="joe@email.com")
-    user.hash_password("joe")
-    user.role = client_role
-    session.add(user)
+    user = User.query.filter_by(username="joe").first()
+    if user is None:
+        user = User(username="joe", email="joe@email.com")
+        user.hash_password("joe")
+        user.role = client_role
+        session.add(user)
+        session.flush()
     return user
 
 
 @pytest.fixture
-def client_auth_headers(api_test_client, client_credentials):
+def client_auth_headers(api_test_client, client, client_credentials):
     response = api_test_client.post("/auth",
                                     data=json.dumps({"username": client_credentials["username"],
                                                     "password": client_credentials["password"]}),
@@ -82,7 +87,7 @@ def client_auth_headers(api_test_client, client_credentials):
 
 
 @pytest.fixture
-def admin_auth_headers(api_test_client, admin_credentials):
+def admin_auth_headers(api_test_client, admin, admin_credentials):
     response = api_test_client.post("/auth",
                                     data=json.dumps({"username": admin_credentials["username"],
                                                     "password": admin_credentials["password"]}),
