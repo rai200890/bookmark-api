@@ -2,23 +2,22 @@ import json
 
 import pytest
 
-from bookmark_api import db
 from bookmark_api.models import Bookmark
 
 
 @pytest.fixture
-def bookmark_current_client(client):
-    bookmark = Bookmark(url="http://google.com", title="Google", user=client)
-    db.session.add(bookmark)
-    db.session.flush()
+def bookmark_current_client(session, client):
+    bookmark = Bookmark(url="http://gmail.com", title="Gmail", user=client)
+    session.add(bookmark)
+    session.flush()
     return bookmark
 
 
 @pytest.fixture
-def bookmark_other_client(other_client):
+def bookmark_other_client(session, other_client):
     bookmark = Bookmark(url="http://google.com", title="Google", user=other_client)
-    db.session.add(bookmark)
-    db.session.flush()
+    session.add(bookmark)
+    session.flush()
     return bookmark
 
 

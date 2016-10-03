@@ -1,22 +1,21 @@
 import pytest
 
 from bookmark_api.models import Bookmark
-from bookmark_api import db
 
 
 @pytest.fixture
-def bookmark_from_current_client(client):
+def bookmark_from_current_client(session, client):
     bookmark = Bookmark(url="http://google.com", title="Google", user=client)
-    db.session.add(bookmark)
-    db.session.flush()
+    session.add(bookmark)
+    session.flush()
     return bookmark
 
 
 @pytest.fixture
-def bookmark_from_other_client(other_client):
+def bookmark_from_other_client(session, other_client):
     bookmark = Bookmark(url="http://google.com", title="Google", user=other_client)
-    db.session.add(bookmark)
-    db.session.flush()
+    session.add(bookmark)
+    session.flush()
     return bookmark
 
 

@@ -1,6 +1,6 @@
-import pytest
 import json
-from bookmark_api import db
+import pytest
+
 from bookmark_api.models import User
 
 
@@ -16,12 +16,12 @@ def test_get_doesnt_exist(api_test_client, admin_auth_headers):
     assert response.status_code == 404
 
 
-def test_delete_exists(api_test_client, admin_auth_headers, client_role):
+def test_delete_exists(session, api_test_client, admin_auth_headers, client_role):
     user = User(username="raissa", email="raissa@email.com")
     user.hash_password("aaaa")
     user.role = client_role
-    db.session.add(user)
-    db.session.flush()
+    session.add(user)
+    session.flush()
 
     response = api_test_client.delete('/users/{}'.format(user.id), headers=admin_auth_headers)
     assert response.status_code == 204
@@ -39,7 +39,6 @@ def test_post_valid(api_test_client, create_valid_params, admin_auth_headers):
     data = json.loads(response.data.decode('utf-8'))
     assert response.status_code == 200
     assert data['user']
-    User.query.filter_by(username="raissa").delete()
 
 
 def test_post_invalid(api_test_client, create_invalid_params, admin_auth_headers):
@@ -51,16 +50,12 @@ def test_post_invalid(api_test_client, create_invalid_params, admin_auth_headers
     assert response.status_code == 422
 
 
-def test_put_valid(api_test_client, edit_valid_params, admin_auth_headers, client_role):
-    User.query.filter_by(username="raissa").delete()
-    User.query.filter_by(username="john_doe").delete()
-    db.session.flush()
-
+def test_put_valid(session, api_test_client, edit_valid_params, admin_auth_headers, client_role):
     user = User(username="raissa", email="raissa@email.com")
     user.hash_password("aaaa")
     user.role = client_role
-    db.session.add(user)
-    db.session.flush()
+    session.add(user)
+    session.flush()
 
     response = api_test_client.put('/users/{}'.format(user.id),
                                    data=json.dumps(edit_valid_params),
@@ -68,24 +63,19 @@ def test_put_valid(api_test_client, edit_valid_params, admin_auth_headers, clien
     assert response.status_code == 204
 
 
-@pytest.mark.skip()
-def test_put_invalid(api_test_client, edit_invalid_params, admin_auth_headers, client_role):
-    User.query.filter_by(username="raissa").delete()
-    User.query.filter_by(username="john_doe").delete()
-
-    db.session.flush()
-
-    user = User(username="raissa", email="raissa@email.com")
+@pytest.mark.skip
+def test_put_invalid(session, api_test_client, edit_invalid_params, admin_auth_headers, client_role):
+    user = User(username="raissaa", email="raissaa@email.com")
     user.hash_password("aaaa")
     user.role = client_role
-    db.session.add(user)
+    session.add(user)
 
-    other_user = User(username="john_doe", email="john_doe@email.com")
+    other_user = User(username="john_doee", email="john_doee@email.com")
     other_user.hash_password("aaaa")
     other_user.role = client_role
-    db.session.add(user)
+    session.add(user)
 
-    db.session.flush()
+    session.flush()
 
     response = api_test_client.put('/users/{}'.format(other_user.id),
                                    data=json.dumps(edit_invalid_params),

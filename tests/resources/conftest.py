@@ -2,7 +2,6 @@ import json
 
 import pytest
 
-from bookmark_api import db
 from bookmark_api.models import User, Role
 
 
@@ -16,46 +15,54 @@ def client_credentials():
     return {"username": "client", "password": "client"}
 
 
-@pytest.fixture(scope="function", autouse=True)
-def admin_role():
-    role = Role(name="admin")
-    db.session.add(role)
-    db.session.commit()
+@pytest.fixture(scope="function")
+def admin_role(session):
+    role = Role.query.filter_by(name="admin").first()
+    if role is None:
+        role = Role(name="admin")
+        session.add(role)
+        session.flush()
+    return role
+
+
+@pytest.fixture(scope="function")
+def client_role(session):
+    role = Role.query.filter_by(name="client").first()
+    if role is None:
+        role = Role(name="client")
+        session.add(role)
+        session.flush()
     return role
 
 
 @pytest.fixture(scope="function", autouse=True)
-def client_role():
-    role = Role(name="client")
-    db.session.add(role)
-    db.session.commit()
-    return role
-
-
-@pytest.fixture(scope="function", autouse=True)
-def admin(admin_credentials, admin_role):
-    user = User(username=admin_credentials["username"], email="admin@email.com")
-    user.hash_password(admin_credentials["password"])
-    user.role = admin_role
-    db.session.add(user)
+def admin(session, admin_credentials, admin_role):
+    user = User.query.filter_by(username=admin_credentials["username"]).first()
+    if user is None:
+        user = User(username=admin_credentials["username"], email="admin@email.com")
+        user.hash_password(admin_credentials["password"])
+        user.role = admin_role
+        session.add(user)
     return user
 
 
 @pytest.fixture(scope="function", autouse=True)
-def client(client_credentials, client_role):
-    user = User(username=client_credentials["username"], email="client@email.com")
-    user.hash_password(client_credentials["password"])
-    user.role = client_role
-    db.session.add(user)
+def client(session, client_credentials, client_role):
+    user = User.query.filter_by(username=client_credentials["username"]).first()
+    if user is None:
+        user = User(username=client_credentials["username"], email="client@email.com")
+        user.hash_password(client_credentials["password"])
+        user.role = client_role
+        session.add(user)
     return user
 
 
-@pytest.fixture(scope="function", autouse=True)
-def other_client(client_role):
+@pytest.fixture(scope="function")
+def other_client(session, client_role):
     user = User(username="joe", email="joe@email.com")
     user.hash_password("joe")
     user.role = client_role
-    db.session.add(user)
+    session.add(user)
     return user
 
 
