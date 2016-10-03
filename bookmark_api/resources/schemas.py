@@ -37,7 +37,6 @@ class CreateBookmarkSchema(Schema):
     id = fields.Integer()
     url = fields.Url(required=True)
     title = fields.String(required=True)
-    user_id = fields.Integer(required=True)
 
 
 class EditBookmarkSchema(Schema):
@@ -73,11 +72,10 @@ class CreateUserSchema(Schema):
     username = fields.String(required=True)
     email = fields.Email(required=True)
     password = fields.String(required=True)
-    role_id = fields.Integer(required=True)
+    role_id = fields.Integer()
 
 
 class EditUserSchema(Schema):
-    id = fields.Integer()
     email = fields.Email()
     password = fields.String()
     role_id = fields.Integer()
@@ -85,9 +83,9 @@ class EditUserSchema(Schema):
 
 class UserSchema(Schema):
     id = fields.Integer()
-    username = fields.String(required=True)
-    email = fields.Email(required=True)
-    role_id = fields.Integer(required=True)
+    username = fields.String()
+    email = fields.Email()
+    role_id = fields.Integer()
 
 
 class CreateUserRequestSchema(Schema):
