@@ -32,7 +32,7 @@ class BookmarkListResource(Resource):
     @use_kwargs(BookmarkListRequestSchema)
     def get(self, **kwargs):
         if current_identity.role.name == 'admin':
-            bookmarks = Bookmark.query.group_by(Bookmark.user_id).paginate(**kwargs)
+            bookmarks = Bookmark.query.order_by(Bookmark.user_id).paginate(**kwargs)
         else:
             bookmarks = Bookmark.query.filter_by(user_id=current_identity.id).paginate(**kwargs)
         return BookmarkListResponseSchema().dump(bookmarks)

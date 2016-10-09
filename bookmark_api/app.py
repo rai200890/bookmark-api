@@ -1,5 +1,5 @@
 from flask import jsonify
-from flask_jwt import JWT
+from flask_jwt import JWT, JWTError
 from flask_principal import (
     Principal,
     Identity,
@@ -28,9 +28,6 @@ def authenticate(username, password):
         identity_changed.send(app,
                               identity=Identity(user.id))
         return user
-    else:
-        identity_changed.send(app,
-                              identity=AnonymousIdentity())
 
 
 def identity(payload):
@@ -84,7 +81,12 @@ def handle_unprocessable_entity(err):
 
 @app.errorhandler(PermissionDenied)
 def handle_permission_denied(err):
-    return jsonify({"errors": 'User cannot access this resource'}), 403
+    return jsonify({"errors": ['User cannot access this resource']}), 403
+
+
+@app.errorhandler(JWTError)
+def handle_invalid_credentials(err):
+    return jsonify({"errors": ['Invalid credentials']}), 401
 
 
 if __name__ == "__main__":
