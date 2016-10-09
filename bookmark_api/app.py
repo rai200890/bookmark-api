@@ -3,7 +3,6 @@ from flask_jwt import JWT, JWTError
 from flask_principal import (
     Principal,
     Identity,
-    AnonymousIdentity,
     identity_changed,
     identity_loaded,
     PermissionDenied
@@ -42,11 +41,11 @@ def on_identity_loaded(sender, identity):
     provide_permissions(identity)
 
 
-#AUTHENCATION
+# AUTHENCATION
 jwt = JWT(app, authenticate, identity)
 
 
-#AUTHORIZATION
+# AUTHORIZATION
 principal = Principal(app)
 
 
@@ -55,7 +54,6 @@ api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
 api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
 api.add_resource(UserListResource, "/users", endpoint="user_list")
 api.add_resource(UserResource, "/users", "/users/<int:user_id>", endpoint="user")
-
 
 
 @app.route("/healthcheck")

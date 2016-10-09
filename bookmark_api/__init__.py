@@ -5,7 +5,7 @@ from dotenv import load_dotenv
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
-from flask_cors import CORS, cross_origin
+from flask_cors import CORS
 
 
 dotenv_path = join(dirname(__file__), '.env')
