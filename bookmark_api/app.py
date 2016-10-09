@@ -45,15 +45,20 @@ def on_identity_loaded(sender, identity):
     provide_permissions(identity)
 
 
+#AUTHENCATION
 jwt = JWT(app, authenticate, identity)
 
+
+#AUTHORIZATION
 principal = Principal(app)
+
 
 # API ENDPOINTS
 api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
 api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
 api.add_resource(UserListResource, "/users", endpoint="user_list")
 api.add_resource(UserResource, "/users", "/users/<int:user_id>", endpoint="user")
+
 
 
 @app.route("/healthcheck")
