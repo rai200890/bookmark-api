@@ -78,24 +78,25 @@ def requires_permission(**params):
 
 
 def provide_permissions(identity):
-    user = identity.user
+    user = User.query.get(identity.id)
     role_name = user.role.name
     identity.provides.add(RoleNeed(role_name))
     if role_name == 'client':
-        _provide_client_permissions(identity)
+        _provide_client_permissions(identity, user)
     elif role_name == 'admin':
-        _provide_admin_permissions(identity)
+        _provide_admin_permissions(identity, user)
 
 
-def _provide_client_permissions(identity):
-    for bookmark in identity.user.bookmarks:
+def _provide_client_permissions(identity, user):
+    for bookmark in user.bookmarks:
         for need_class in [ViewBookmarkNeed, DeleteBookmarkNeed, EditBookmarkNeed]:
             identity.provides.add(need_class(bookmark.id))
-    identity.provides.add(ViewUserNeed(identity.user.id))
-    identity.provides.add(EditUserNeed(identity.user.id))
+    identity.provides.add(DeleteUserNeed(identity.id))
+    identity.provides.add(ViewUserNeed(identity.id))
+    identity.provides.add(EditUserNeed(identity.id))
 
 
-def _provide_admin_permissions(identity):
+def _provide_admin_permissions(identity, user):
     for bookmark in Bookmark.query.all():
         identity.provides.add(ViewBookmarkNeed(bookmark.id))
     for user in User.query.all():

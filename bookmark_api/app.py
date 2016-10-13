@@ -18,31 +18,30 @@ from bookmark_api.resources.user import (
     UserListResource,
     UserResource
 )
-from bookmark_api.authorization import provide_permissions
 
+from bookmark_api.authorization import provide_permissions
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
     if user and user.verify_password(password):
-        identity_changed.send(app,
-                              identity=Identity(user.id))
         return user
 
 
-def identity(payload):
+def identity_loader(payload):
     user_id = payload['identity']
-    return User.query.get(user_id)
-
-
-@identity_loaded.connect_via(app)
-def on_identity_loaded(sender, identity):
-    user = User.query.filter_by(id=identity.id).one()
-    identity.user = user
-    provide_permissions(identity)
+    try:
+        user = User.query.filter_by(id=user_id).one()
+        identity = Identity(user_id)
+        provide_permissions(identity)
+        identity_changed.send(app,
+                              identity=identity)
+        return user
+    except Exception as e:
+        app.logger.error(e)
 
 
 # AUTHENCATION
-jwt = JWT(app, authenticate, identity)
+jwt = JWT(app, authenticate, identity_loader)
 
 
 # AUTHORIZATION

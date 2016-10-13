@@ -56,7 +56,6 @@ class UserResource(Resource):
 
     @jwt_required()
     @requires_permission(permission_class=DeleteUserPermission, field='user_id')
-    @admin_permission.require()
     def delete(self, user_id):
         return handle_delete(User, user_id)
 
