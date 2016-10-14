@@ -40,15 +40,12 @@ def identity_loader(payload):
         app.logger.error(e)
 
 
-# AUTHENCATION
 jwt = JWT(app, authenticate, identity_loader)
 
 
-# AUTHORIZATION
-principal = Principal(app)
+principals = Principal(app)
 
 
-# API ENDPOINTS
 api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
 api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
 api.add_resource(UserListResource, "/users", endpoint="user_list")
