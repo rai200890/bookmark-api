@@ -32,6 +32,7 @@ class BookmarkSchema(Schema):
     url = fields.Url()
     title = fields.String()
     user = fields.Nested("UserSchema")
+    created_at = fields.Date()
 
 
 class CreateBookmarkSchema(Schema):

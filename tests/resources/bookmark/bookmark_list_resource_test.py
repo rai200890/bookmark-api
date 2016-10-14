@@ -27,7 +27,8 @@ def test_bookmark_list_client(api_test_client, bookmark_other_client, bookmark_c
     bookmark_ids = [bookmark["id"] for bookmark in data['bookmarks']]
     assert bookmark_ids == [bookmark_current_client.id]
     assert data["pagination"] == {'has_prev': False, 'prev_page': 0, 'next_page': 2,
-                                  'has_next': False, 'total': 1, 'pages': 1, 'per_page': 15}
+                                  'has_next': False, 'total': 1, 'pages': 1, 'per_page': 15,
+                                  'page': 1}
 
 
 def test_bookmark_list_admin(api_test_client, bookmark_current_client, bookmark_other_client, admin_auth_headers):
@@ -37,4 +38,5 @@ def test_bookmark_list_admin(api_test_client, bookmark_current_client, bookmark_
     bookmark_ids = [bookmark["id"] for bookmark in data['bookmarks']]
     assert bookmark_ids == [bookmark_current_client.id, bookmark_other_client.id]
     assert data["pagination"] == {'has_prev': False, 'prev_page': 0, 'next_page': 2,
-                                  'has_next': False, 'total': 2, 'pages': 1, 'per_page': 15}
+                                  'has_next': False, 'total': 2, 'pages': 1, 'per_page': 15,
+                                  'page': 1}
