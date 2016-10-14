@@ -70,7 +70,6 @@ class BookmarkResponseSchema(SelfSchema):
 
 
 class CreateUserSchema(Schema):
-    id = fields.Integer()
     username = fields.String(required=True)
     email = fields.Email(required=True)
     password = fields.String(required=True)
