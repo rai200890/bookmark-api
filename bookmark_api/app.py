@@ -1,11 +1,9 @@
 from flask import jsonify
-from flask_jwt import JWT
+from flask_jwt import JWT, JWTError
 from flask_principal import (
     Principal,
     Identity,
-    AnonymousIdentity,
     identity_changed,
-    identity_loaded,
     PermissionDenied
 )
 
@@ -19,46 +17,39 @@ from bookmark_api.resources.user import (
     UserListResource,
     UserResource
 )
+
 from bookmark_api.authorization import provide_permissions
 
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
     if user and user.verify_password(password):
-        identity_changed.send(app,
-                              identity=Identity(user.id))
         return user
-    else:
-        identity_changed.send(app,
-                              identity=AnonymousIdentity())
 
 
-def identity(payload):
+def identity_loader(payload):
     user_id = payload['identity']
-    return User.query.get(user_id)
+    try:
+        user = User.query.filter_by(id=user_id).one()
+        identity = Identity(user_id)
+        provide_permissions(identity)
+        identity_changed.send(app,
+                              identity=identity)
+        return user
+    except Exception as e:
+        app.logger.error(e)
 
 
-@identity_loaded.connect_via(app)
-def on_identity_loaded(sender, identity):
-    user = User.query.filter_by(id=identity.id).one()
-    identity.user = user
-    provide_permissions(identity)
+jwt = JWT(app, authenticate, identity_loader)
 
 
-#AUTHENCATION
-jwt = JWT(app, authenticate, identity)
+principals = Principal(app)
 
 
-#AUTHORIZATION
-principal = Principal(app)
-
-
-# API ENDPOINTS
 api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
 api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
 api.add_resource(UserListResource, "/users", endpoint="user_list")
 api.add_resource(UserResource, "/users", "/users/<int:user_id>", endpoint="user")
-
 
 
 @app.route("/healthcheck")
@@ -84,7 +75,12 @@ def handle_unprocessable_entity(err):
 
 @app.errorhandler(PermissionDenied)
 def handle_permission_denied(err):
-    return jsonify({"errors": 'User cannot access this resource'}), 403
+    return jsonify({"errors": ['User cannot access this resource']}), 403
+
+
+@app.errorhandler(JWTError)
+def handle_invalid_credentials(err):
+    return jsonify({"errors": ['Invalid credentials']}), 401
 
 
 if __name__ == "__main__":

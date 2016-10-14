@@ -23,9 +23,21 @@ def create_roles():
 
 
 @manager.command
-def create_user(username, password):
+def create_admin(username, password, email):
     try:
-        user = User(username=username)
+        user = User(username=username, email=email, role=Role.query.filter_by(name='admin').one())
+        user.hash_password(password)
+        db.session.add(user)
+        db.session.commit()
+        app.logger.info('User created successfully')
+    except Exception as e:
+        app.logger.error(e)
+
+
+@manager.command
+def create_client(username, password, email):
+    try:
+        user = User(username=username, email=email, role=Role.query.filter_by(name='client').one())
         user.hash_password(password)
         db.session.add(user)
         db.session.commit()

@@ -1,5 +1,6 @@
 from passlib.apps import custom_app_context as pwd_context
 from sqlalchemy.schema import UniqueConstraint
+from sqlalchemy.sql import func
 
 from bookmark_api import db
 
@@ -10,6 +11,7 @@ class Bookmark(db.Model):
     url = db.Column(db.String(200), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     user = db.relationship("User", back_populates="bookmarks")
+    created_at = db.Column(db.TIMESTAMP, server_default=func.now())
     __table_args__ = (UniqueConstraint('user_id', 'title', 'url', name='unique_user_id_title_url'),)
 
 

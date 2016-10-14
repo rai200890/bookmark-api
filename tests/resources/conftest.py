@@ -81,7 +81,7 @@ def client_auth_headers(api_test_client, client, client_credentials):
     token = data["access_token"]
     headers = {
                 "Content-Type": "application/json; charset=utf-8",
-                "Authorization": "JWT {}".format(token)
+                "Authorization": "Bearer {}".format(token)
     }
     return headers
 
@@ -96,6 +96,6 @@ def admin_auth_headers(api_test_client, admin, admin_credentials):
     token = data["access_token"]
     headers = {
                 "Content-Type": "application/json; charset=utf-8",
-                "Authorization": "JWT {}".format(token)
+                "Authorization": "Bearer {}".format(token)
     }
     return headers
