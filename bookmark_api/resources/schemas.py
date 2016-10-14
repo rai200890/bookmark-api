@@ -15,6 +15,7 @@ class PaginationSchema(Schema):
     prev_page = fields.Integer(attribute="prev_num")
     total = fields.Integer()
     per_page = fields.Integer()
+    page = fields.Integer()
     pages = fields.Integer()
 
 
@@ -30,7 +31,7 @@ class BookmarkSchema(Schema):
     id = fields.Integer()
     url = fields.Url()
     title = fields.String()
-    user_id = fields.Integer()
+    user = fields.Nested("UserSchema")
 
 
 class CreateBookmarkSchema(Schema):

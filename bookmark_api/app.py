@@ -4,7 +4,6 @@ from flask_principal import (
     Principal,
     Identity,
     identity_changed,
-    identity_loaded,
     PermissionDenied
 )
 
@@ -20,6 +19,7 @@ from bookmark_api.resources.user import (
 )
 
 from bookmark_api.authorization import provide_permissions
+
 
 def authenticate(username, password):
     user = User.query.filter_by(username=username).first()
