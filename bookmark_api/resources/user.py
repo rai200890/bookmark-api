@@ -42,7 +42,6 @@ class UserResource(Resource):
         user = User.query.get_or_404(user_id)
         return UserResponseSchema().dump(user).data
 
-    @jwt_required()
     @use_kwargs(CreateUserRequestSchema)
     def post(self, **kwargs):
         try:
@@ -74,10 +73,9 @@ class UserResource(Resource):
 
     @staticmethod
     def _assign_attributes(instance, params):
-        role_id = params.pop('role_id', None)
-        if current_identity.role.name == 'client':
-            role = Role.query.filter_by(name='client').first()
-            role_id = role.id
+        role_id = Role.query.filter_by(name='client').first().id
+        if current_identity and current_identity.role.name == 'admin':
+            role_id = params.pop('role_id', None)
         params.update({"role_id": role_id})
         password = params.pop('password', None)
         if password is not None:
