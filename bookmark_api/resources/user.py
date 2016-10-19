@@ -23,6 +23,7 @@ from bookmark_api.resources.common import (
     handle_delete
 )
 from bookmark_api.models import Role
+from bookmark_api import cache
 
 
 class UserListResource(Resource):
@@ -36,6 +37,7 @@ class UserListResource(Resource):
 
 class UserResource(Resource):
 
+    @cache.cached(timeout=50)
     @jwt_required()
     @requires_permission(permission_class=ViewUserPermission, field='user_id')
     def get(self, user_id):

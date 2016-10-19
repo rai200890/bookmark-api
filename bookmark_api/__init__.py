@@ -6,6 +6,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_restful import Api
 from flask_cors import CORS
+from flask_cache import Cache
 
 
 dotenv_path = join(dirname(__file__), '.env')
@@ -29,3 +30,4 @@ app.config['CORS_ORIGINS'] = environ.get('CORS_ORIGINS')
 db = SQLAlchemy(app)
 api = Api(app)
 CORS(app)
+cache = Cache(app, config={'CACHE_TYPE': 'simple'})
