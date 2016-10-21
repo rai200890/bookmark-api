@@ -19,15 +19,19 @@ def parse_boolean(value):
 
 app = Flask(__name__)
 
+
 app.config['SQLALCHEMY_DATABASE_URI'] = environ.get('SQLALCHEMY_DATABASE_URI')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = parse_boolean(environ.get('SQLALCHEMY_TRACK_MODIFICATIONS'))
 app.config['SECRET_KEY'] = environ.get('SECRET_KEY')
 app.config['JWT_VERIFY'] = parse_boolean(environ.get('JWS_VERIFY'))
 app.config['JWT_AUTH_HEADER_PREFIX'] = "Bearer"
 app.config['CORS_ORIGINS'] = environ.get('CORS_ORIGINS')
+app.config['CACHE_REDIS_URL'] = environ.get('CACHE_REDIS_URL')
+app.config['CACHE_DEFAULT_TIMEOUT'] = environ.get('CACHE_DEFAULT_TIMEOUT')
+app.config['CACHE_TYPE'] = environ.get('CACHE_TYPE')
 
 
 db = SQLAlchemy(app)
 api = Api(app)
 CORS(app)
-cache = Cache(app, config={'CACHE_TYPE': 'simple'})
+cache = Cache(app)
