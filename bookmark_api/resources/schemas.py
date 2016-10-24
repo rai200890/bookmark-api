@@ -87,6 +87,7 @@ class UserSchema(Schema):
     username = fields.String()
     email = fields.Email()
     role_id = fields.Integer()
+    role_name = fields.String(attribute="role.name")
 
 
 class CreateUserRequestSchema(Schema):

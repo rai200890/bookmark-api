@@ -18,7 +18,7 @@ run-debug: #run server in debug mode
 	venv/bin/python bookmark_api/app.py
 
 run: #run server
-	venv/bin/gunicorn --reload -b 0.0.0.0:5000 bookmark_api.app:app -w 3 --access-logfile=-
+	venv/bin/gunicorn --reload -b 0.0.0.0:5000 bookmark_api.app:app -w 4 --threads 4 --access-logfile=-
 
 flake8: clean #run flake8 verifications
 	venv/bin/flake8 bookmark_api tests || true

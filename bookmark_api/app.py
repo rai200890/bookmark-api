@@ -17,7 +17,6 @@ from bookmark_api.resources.user import (
     UserListResource,
     UserResource
 )
-
 from bookmark_api.authorization import provide_permissions
 
 
