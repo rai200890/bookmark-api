@@ -26,10 +26,11 @@ app.config['SECRET_KEY'] = environ.get('SECRET_KEY')
 app.config['JWT_VERIFY'] = parse_boolean(environ.get('JWS_VERIFY'))
 app.config['JWT_AUTH_HEADER_PREFIX'] = "Bearer"
 app.config['CORS_ORIGINS'] = environ.get('CORS_ORIGINS')
+app.config['CACHE_TYPE'] = environ.get('CACHE_TYPE')
 app.config['CACHE_REDIS_URL'] = environ.get('CACHE_REDIS_URL')
 app.config['CACHE_DEFAULT_TIMEOUT'] = environ.get('CACHE_DEFAULT_TIMEOUT')
-app.config['CACHE_TYPE'] = environ.get('CACHE_TYPE')
-
+app.config['CACHE_NO_NULL_WARNING'] = environ.get('CACHE_NO_NULL_WARNING')
+app.config['CACHE_KEY_PREFIX'] = environ.get('CACHE_KEY_PREFIX')
 
 db = SQLAlchemy(app)
 api = Api(app)

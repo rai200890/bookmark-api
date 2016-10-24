@@ -37,7 +37,7 @@ class UserListResource(Resource):
 
 class UserResource(Resource):
 
-    @cache.cached(timeout=50)
+    @cache.cached()
     @jwt_required()
     @requires_permission(permission_class=ViewUserPermission, field='user_id')
     def get(self, user_id):

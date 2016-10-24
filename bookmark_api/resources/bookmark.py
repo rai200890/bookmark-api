@@ -24,6 +24,7 @@ from bookmark_api.resources.common import (
     assign_attributes,
     handle_delete
 )
+from bookmark_api import cache
 
 
 class BookmarkListResource(Resource):
@@ -41,6 +42,7 @@ class BookmarkListResource(Resource):
 
 class BookmarkResource(Resource):
 
+    @cache.cached()
     @jwt_required()
     @requires_permission(permission_class=ViewBookmarkPermission, field='bookmark_id')
     def get(self, bookmark_id):
