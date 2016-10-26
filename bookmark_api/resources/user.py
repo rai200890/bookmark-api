@@ -2,7 +2,6 @@ from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
 from flask_jwt import jwt_required, current_identity
 from sqlalchemy.exc import SQLAlchemyError
-from flasgger.utils import swag_from
 
 from bookmark_api import db
 from bookmark_api.models import User
