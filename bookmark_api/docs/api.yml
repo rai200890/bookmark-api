@@ -3,7 +3,14 @@ swagger: '2.0'
 info:
   version: '1.0.0'
   title: Bookmark API
-  description: Bookmark API
+  description: API for managing bookmarks and users
+
+
+    In order to get a valid auth token for protected endpoints, first send credentials to auth endpoint then copy **access_token** value from response. Then add it to the authentication header parameter of those endpoints.
+
+
+    Eg. Bearer *access_token*
+
   contact:
     name: Raissa Ferreira
     email: rai200890@gmail.com
@@ -39,9 +46,12 @@ paths:
       tags:
         - bookmarks
       description: Returns all bookmarks grouped by user and ordered by creation date desc
-      produces:
-        - application/json
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: per_page
           in: query
           description: Number of bookmarks per page
@@ -64,6 +74,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: bookmark
           in: body
           description: Bookmark
@@ -87,6 +102,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: id
           in: path
           description: ID of bookmark to fetch
@@ -108,6 +128,11 @@ paths:
       produces:
         - application/json
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: id
           in: path
           description: ID of bookmark to edit
@@ -129,6 +154,11 @@ paths:
         - bookmarks
       description: Deletes a single bookmark based on the ID supplied
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: id
           in: path
           description: ID of bookmark to delete
@@ -146,6 +176,12 @@ paths:
       tags:
         - users
       description: Returns all users
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
       responses:
         '200':
           description: User List
@@ -158,6 +194,11 @@ paths:
         - users
       description: Creates a new user
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: user
           in: body
           description: User
@@ -179,6 +220,11 @@ paths:
         - users
       description: Returns an user based on a single ID
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: id
           in: path
           description: ID of user to fetch
@@ -198,6 +244,11 @@ paths:
         - users
       description: Edit a user
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: id
           in: path
           description: ID of user to edit
@@ -219,6 +270,11 @@ paths:
         - users
       description: Deletes a single user based on the ID supplied
       parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
         - name: id
           in: path
           description: ID of user to delete
