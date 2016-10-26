@@ -19,8 +19,6 @@ info:
     name: MIT
     url: http://opensource.org/licenses/MIT
 basePath: /
-schemes:
-  - http
 consumes:
   - application/json
 produces:

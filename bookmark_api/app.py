@@ -9,6 +9,7 @@ from flask_principal import (
     identity_changed,
     PermissionDenied
 )
+from flask import request
 from flask_swaggerui import render_swaggerui
 
 from bookmark_api import app, db, api
@@ -64,6 +65,7 @@ def root():
 def spec():
     with open(join(dirname(__file__), 'docs/api.yml'), "r") as contents:
         docs = yaml.load(contents)
+    docs['host'] = request.host
     return jsonify(docs)
 
 
