@@ -15,9 +15,9 @@ basePath: /
 schemes:
   - http
 consumes:
-    - application/json
+  - application/json
 produces:
-    - application/json
+  - application/json
 paths:
   /auth:
     post:
@@ -25,19 +25,15 @@ paths:
         - auth
       description: Authentication endpoint
       parameters:
-        - name: Credentials
+        - name: credentials
           in: body
-          description:
+          description: Credentials
           required: true
           schema:
             $ref: '#/definitions/Auth'
       responses:
         '200':
           description: Auth token
-          type: object
-          properties:
-            access_token:
-              type: string
   /bookmarks:
     get:
       tags:
@@ -145,6 +141,96 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/errors'
+  /users:
+    get:
+      tags:
+        - users
+      description: Returns all users
+      responses:
+        '200':
+          description: User List
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+    post:
+      tags:
+        - users
+      description: Creates a new user
+      parameters:
+        - name: user
+          in: body
+          description: User
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUser'
+      responses:
+        '200':
+          description: Bookmark Response
+          schema:
+            $ref: '#/definitions/Bookmark'
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+  /users/{id}:
+    get:
+      tags:
+        - users
+      description: Returns an user based on a single ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of user to fetch
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: User response
+          schema:
+            $ref: '#/definitions/User'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+    put:
+      tags:
+        - users
+      description: Edit a user
+      parameters:
+        - name: id
+          in: path
+          description: ID of user to edit
+          required: true
+          type: integer
+        - name: user
+          in: body
+          schema:
+            $ref: '#/definitions/EditUser'
+      responses:
+        '204':
+          description: User response
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+    delete:
+      tags:
+        - users
+      description: Deletes a single user based on the ID supplied
+      parameters:
+        - name: id
+          in: path
+          description: ID of user to delete
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: User deleted
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
 definitions:
   Auth:
     type: object
@@ -177,15 +263,60 @@ definitions:
   EditBookmark:
     type: object
     properties:
+      id:
+        type: integer
       title:
         type: string
       url:
         type: string
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+      email:
+        type: string
+  CreateUser:
+    type: object
+    required:
+      - username
+      - password
+      - email
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+  EditUser:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
   Pagination:
     type: object
     properties:
-        page:
-          type: integer
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
+      next_page:
+        type: integer
+      prev_page:
+        type: integer
+      total:
+        type: integer
+      per_page:
+        type: integer
+      page:
+        type: integer
   BookmarkList:
     type: object
     properties:
