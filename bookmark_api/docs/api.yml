@@ -1,0 +1,394 @@
+---
+swagger: '2.0'
+info:
+  version: '1.0.0'
+  title: Bookmark API
+  description: API for managing bookmarks and users
+
+
+    In order to get a valid auth token for protected endpoints, first send credentials to auth endpoint then copy **access_token** value from response. Then add it to the authentication header parameter of those endpoints.
+
+
+    Eg. Bearer *access_token*
+
+  contact:
+    name: Raissa Ferreira
+    email: rai200890@gmail.com
+    url: http://github.com/rai200890
+  license:
+    name: MIT
+    url: http://opensource.org/licenses/MIT
+basePath: /
+schemes:
+  - http
+consumes:
+  - application/json
+produces:
+  - application/json
+paths:
+  /auth:
+    post:
+      tags:
+        - auth
+      description: Authentication endpoint
+      parameters:
+        - name: credentials
+          in: body
+          description: Credentials
+          required: true
+          schema:
+            $ref: '#/definitions/Auth'
+      responses:
+        '200':
+          description: Auth token
+  /bookmarks:
+    get:
+      tags:
+        - bookmarks
+      description: Returns all bookmarks grouped by user and ordered by creation date desc
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: per_page
+          in: query
+          description: Number of bookmarks per page
+          required: false
+          type: integer
+        - name: page
+          in: query
+          description: Selected page
+          required: false
+          type: integer
+      responses:
+        '200':
+          description: Bookmark List
+          schema:
+            $ref: '#/definitions/BookmarkList'
+    post:
+      tags:
+        - bookmarks
+      description: Creates a new bookmark
+      produces:
+        - application/json
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: bookmark
+          in: body
+          description: Bookmark
+          required: true
+          schema:
+            $ref: '#/definitions/CreateBookmark'
+      responses:
+        '200':
+          description: Bookmark Response
+          schema:
+            $ref: '#/definitions/Bookmark'
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+  /bookmarks/{id}:
+    get:
+      tags:
+        - bookmarks
+      description: Returns a bookmark user based on a single ID
+      produces:
+        - application/json
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: id
+          in: path
+          description: ID of bookmark to fetch
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: Bookmark response
+          schema:
+            $ref: '#/definitions/Bookmark'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+    put:
+      tags:
+        - bookmarks
+      description: Edit a bookmark
+      produces:
+        - application/json
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: id
+          in: path
+          description: ID of bookmark to edit
+          required: true
+          type: integer
+        - name: bookmark
+          in: body
+          schema:
+            $ref: '#/definitions/EditBookmark'
+      responses:
+        '204':
+          description: Bookmark response
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+    delete:
+      tags:
+        - bookmarks
+      description: Deletes a single bookmark based on the ID supplied
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: id
+          in: path
+          description: ID of bookmark to delete
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: bookmark deleted
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+  /users:
+    get:
+      tags:
+        - users
+      description: Returns all users
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+      responses:
+        '200':
+          description: User List
+          schema:
+            type: array
+            items:
+              $ref: '#/definitions/User'
+    post:
+      tags:
+        - users
+      description: Creates a new user
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: user
+          in: body
+          description: User
+          required: true
+          schema:
+            $ref: '#/definitions/CreateUser'
+      responses:
+        '200':
+          description: Bookmark Response
+          schema:
+            $ref: '#/definitions/Bookmark'
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+  /users/{id}:
+    get:
+      tags:
+        - users
+      description: Returns an user based on a single ID
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: id
+          in: path
+          description: ID of user to fetch
+          required: true
+          type: integer
+      responses:
+        '200':
+          description: User response
+          schema:
+            $ref: '#/definitions/User'
+        default:
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+    put:
+      tags:
+        - users
+      description: Edit a user
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: id
+          in: path
+          description: ID of user to edit
+          required: true
+          type: integer
+        - name: user
+          in: body
+          schema:
+            $ref: '#/definitions/EditUser'
+      responses:
+        '204':
+          description: User response
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+    delete:
+      tags:
+        - users
+      description: Deletes a single user based on the ID supplied
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+        - name: id
+          in: path
+          description: ID of user to delete
+          required: true
+          type: integer
+      responses:
+        '204':
+          description: User deleted
+        '422':
+          description: unexpected error
+          schema:
+            $ref: '#/definitions/errors'
+definitions:
+  Auth:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  Bookmark:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+      url:
+        type: string
+      created_at:
+        type: string
+  CreateBookmark:
+    type: object
+    required:
+      - title
+      - url
+    properties:
+      title:
+        type: string
+      url:
+        type: string
+  EditBookmark:
+    type: object
+    properties:
+      id:
+        type: integer
+      title:
+        type: string
+      url:
+        type: string
+  User:
+    type: object
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+      email:
+        type: string
+  CreateUser:
+    type: object
+    required:
+      - username
+      - password
+      - email
+    properties:
+      id:
+        type: integer
+      username:
+        type: string
+      password:
+        type: string
+      email:
+        type: string
+  EditUser:
+    type: object
+    properties:
+      username:
+        type: string
+      password:
+        type: string
+  Pagination:
+    type: object
+    properties:
+      has_next:
+        type: boolean
+      has_prev:
+        type: boolean
+      next_page:
+        type: integer
+      prev_page:
+        type: integer
+      total:
+        type: integer
+      per_page:
+        type: integer
+      page:
+        type: integer
+  BookmarkList:
+    type: object
+    properties:
+      pagination:
+        $ref: '#/definitions/Pagination'
+      bookmarks:
+        type: array
+        items:
+          $ref: '#/definitions/Bookmark'
+  errors:
+    type: object
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: integer
+      message:
+        type: string

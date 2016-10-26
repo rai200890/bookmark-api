@@ -16,7 +16,6 @@ class PaginationSchema(Schema):
     total = fields.Integer()
     per_page = fields.Integer()
     page = fields.Integer()
-    pages = fields.Integer()
 
 
 class BookmarkListRequestSchema(Schema):

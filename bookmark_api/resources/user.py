@@ -2,6 +2,7 @@ from flask_restful import Resource
 from webargs.flaskparser import use_kwargs
 from flask_jwt import jwt_required, current_identity
 from sqlalchemy.exc import SQLAlchemyError
+from flasgger.utils import swag_from
 
 from bookmark_api import db
 from bookmark_api.models import User
@@ -41,6 +42,41 @@ class UserResource(Resource):
     @jwt_required()
     @requires_permission(permission_class=ViewUserPermission, field='user_id')
     def get(self, user_id):
+        """
+        This is the language awesomeness API
+        Call this api passing a language name and get back its features
+        ---
+        tags:
+          - Awesomeness Language API
+        parameters:
+          - name: language
+            in: path
+            type: string
+            required: true
+            description: The language name
+          - name: size
+            in: query
+            type: integer
+            description: size of awesomeness
+        responses:
+          500:
+            description: Error The language is not awesome!
+          200:
+            description: A language with its awesomeness
+            schema:
+              id: awesome
+              properties:
+                language:
+                  type: string
+                  description: The language name
+                  default: Lua
+                features:
+                  type: array
+                  description: The awesomeness list
+                  items:
+                    type: string
+                  default: ["perfect", "simple", "lovely"]
+        """
         user = User.query.get_or_404(user_id)
         return UserResponseSchema().dump(user).data
 

@@ -1,3 +1,6 @@
+from os.path import join, dirname
+import yaml
+
 from flask import jsonify
 from flask_jwt import JWT, JWTError
 from flask_principal import (
@@ -6,6 +9,7 @@ from flask_principal import (
     identity_changed,
     PermissionDenied
 )
+from flask_swaggerui import render_swaggerui
 
 from bookmark_api import app, db, api
 from bookmark_api.models import User
@@ -49,6 +53,18 @@ api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
 api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
 api.add_resource(UserListResource, "/users", endpoint="user_list")
 api.add_resource(UserResource, "/users", "/users/<int:user_id>", endpoint="user")
+
+
+@app.route('/')
+def root():
+    return render_swaggerui(swagger_spec_path="/spec")
+
+
+@app.route('/spec')
+def spec():
+    with open(join(dirname(__file__), 'docs/api.yml'), "r") as contents:
+        docs = yaml.load(contents)
+    return jsonify(docs)
 
 
 @app.route("/healthcheck")
