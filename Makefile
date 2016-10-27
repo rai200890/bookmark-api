@@ -11,7 +11,6 @@ setup: venv #install development dependencies
 setup-os: #install os requirements
 	sudo apt-get install -y python3-dev python-virtualenv libmysqlclient-dev libpq-dev
 
-
 install: #install project's dependencies
 	venv/bin/pip install -r requirements.txt
 
@@ -26,3 +25,8 @@ flake8: clean #run flake8 verifications
 
 test: clean #run unit tests with coverage report
 	venv/bin/py.test --cov=bookmark_api --cov-report=term --cov-report=xml --cov-report=html  tests/* -s -r a --color=yes || true
+
+setup-db:
+	venv/bin/python bookmark_api/manage.py db migrate
+	venv/bin/python bookmark_api/manage.py db upgrade
+	venv/bin/python bookmark_api/manage.py create_roles

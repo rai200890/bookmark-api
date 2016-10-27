@@ -16,10 +16,16 @@ Bookmark API for the [Bookmark App](https://github.com/rai200890/bookmark-interf
 ### Project's dependencies (Using virtualenv)
 
 ```bash
-  make setup
+  make setup #create virtualenv and install project's dependencies
+  cp bookmark_api/.env.sample .env #create .env file
 ```
 
-Make sure to change *.env* with your database credentials.
+Make sure to change *.env* with your database credentials before running the next commands!
+
+```bash
+  make setup-db #migrate database and create aplication roles
+  venv/bin/python bookmark_api/manage.py create_admin admin admin admin@mail.com #example of create admin account, with admin password and admin@mail.com email
+```
 
 ##Run
 

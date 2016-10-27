@@ -9,7 +9,8 @@ from bookmark_api.resources.schemas import (
     UserListResponseSchema,
     CreateUserRequestSchema,
     EditUserRequestSchema,
-    UserResponseSchema
+    UserResponseSchema,
+    RoleListResponseSchema
 )
 from bookmark_api.authorization import (
     requires_permission,
@@ -24,6 +25,15 @@ from bookmark_api.resources.common import (
 )
 from bookmark_api.models import Role
 from bookmark_api import cache
+
+
+class RoleListResource(Resource):
+
+    @jwt_required()
+    @admin_permission.require()
+    def get(self):
+        roles = Role.query.all()
+        return RoleListResponseSchema().dump(roles)
 
 
 class UserListResource(Resource):

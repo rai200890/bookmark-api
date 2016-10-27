@@ -20,7 +20,8 @@ from bookmark_api.resources.bookmark import (
 )
 from bookmark_api.resources.user import (
     UserListResource,
-    UserResource
+    UserResource,
+    RoleListResource
 )
 from bookmark_api.authorization import provide_permissions
 
@@ -54,6 +55,7 @@ api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
 api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
 api.add_resource(UserListResource, "/users", endpoint="user_list")
 api.add_resource(UserResource, "/users", "/users/<int:user_id>", endpoint="user")
+api.add_resource(RoleListResource, "/roles", endpoint="role_list")
 
 
 @app.route('/')
