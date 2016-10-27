@@ -103,6 +103,15 @@ class EditUserRequestSchema(Schema):
         strict = True
 
 
+class RoleSchema(Schema):
+    id = fields.Integer()
+    name = fields.String()
+
+
+class RoleListResponseSchema(SelfSchema):
+    roles = fields.Nested(RoleSchema, many=True, attribute="self")
+
+
 class UserListResponseSchema(SelfSchema):
     users = fields.Nested(UserSchema, many=True, attribute="self")
 

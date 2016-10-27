@@ -184,9 +184,7 @@ paths:
         '200':
           description: User List
           schema:
-            type: array
-            items:
-              $ref: '#/definitions/User'
+            $ref: '#/definitions/UserList'
     post:
       tags:
         - users
@@ -285,6 +283,22 @@ paths:
           description: unexpected error
           schema:
             $ref: '#/definitions/errors'
+  /roles:
+    get:
+      tags:
+        - roles
+      description: Returns all roles
+      parameters:
+        - name: authorization
+          in: header
+          type: string
+          default: Bearer
+          required: true
+      responses:
+        '200':
+          description: Role List
+          schema:
+            $ref: '#/definitions/RoleList'
 definitions:
   Auth:
     type: object
@@ -371,6 +385,25 @@ definitions:
         type: integer
       page:
         type: integer
+  Role:
+    type: object
+    properties:
+      id:
+        type: integer
+      name:
+        type: integer
+  UserList:
+    type: object
+    properties:
+      roles:
+        type: array
+        $ref: '#/definitions/User'
+  RoleList:
+    type: object
+    properties:
+      roles:
+        type: array
+        $ref: '#/definitions/Role'
   BookmarkList:
     type: object
     properties:
