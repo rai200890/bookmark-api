@@ -1,6 +1,3 @@
-from os.path import join, dirname
-import yaml
-
 from flask import jsonify
 from flask_jwt import JWT, JWTError
 from flask_principal import (
@@ -9,19 +6,17 @@ from flask_principal import (
     identity_changed,
     PermissionDenied
 )
-from flask import request
-from flask_swaggerui import render_swaggerui
 
-from bookmark_api import app, db, api
+from bookmark_api import app, db
 from bookmark_api.models import User
 from bookmark_api.resources.bookmark import (
-    BookmarkListResource,
-    BookmarkResource
+    BookmarkResource,
+    BookmarkListResource
 )
 from bookmark_api.resources.user import (
+    RoleListResource,
     UserListResource,
-    UserResource,
-    RoleListResource
+    UserResource
 )
 from bookmark_api.authorization import provide_permissions
 
@@ -50,25 +45,24 @@ jwt = JWT(app, authenticate, identity_loader)
 
 principals = Principal(app)
 
+bookmark_view = BookmarkResource.as_view('bookmark_resource')
+bookmark_list_view = BookmarkListResource.as_view('bookmark_list_resource')
+role_list_view = RoleListResource.as_view('role_list_view')
+user_view = UserResource.as_view('user_resource')
+user_list_view = UserListResource.as_view('user_list_resource')
 
-api.add_resource(BookmarkListResource, "/bookmarks", endpoint="bookmark_list")
-api.add_resource(BookmarkResource, "/bookmarks", "/bookmarks/<int:bookmark_id>", endpoint="bookmark")
-api.add_resource(UserListResource, "/users", endpoint="user_list")
-api.add_resource(UserResource, "/users", "/users/<int:user_id>", endpoint="user")
-api.add_resource(RoleListResource, "/roles", endpoint="role_list")
-
-
-@app.route('/')
-def root():
-    return render_swaggerui(swagger_spec_path="/spec")
-
-
-@app.route('/spec')
-def spec():
-    with open(join(dirname(__file__), 'docs/api.yml'), "r") as contents:
-        docs = yaml.load(contents)
-    docs['host'] = request.host
-    return jsonify(docs)
+app.add_url_rule('/bookmarks',
+                 view_func=bookmark_list_view, methods=['GET'])
+app.add_url_rule('/bookmarks', view_func=bookmark_view, methods=['POST'])
+app.add_url_rule('/bookmarks/<int:bookmark_id>', view_func=bookmark_view,
+                 methods=['GET', 'PUT', 'DELETE'])
+app.add_url_rule('/roles',
+                 view_func=role_list_view, methods=['GET'])
+app.add_url_rule('/users',
+                 view_func=user_list_view, methods=['GET'])
+app.add_url_rule('/users', view_func=user_view, methods=['POST'])
+app.add_url_rule('/users/<int:user_id>', view_func=user_view,
+                 methods=['GET', 'PUT', 'DELETE'])
 
 
 @app.route("/healthcheck")

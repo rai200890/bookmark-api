@@ -1,4 +1,5 @@
-from flask_restful import Resource
+from flask import jsonify
+from flask.views import MethodView
 from webargs.flaskparser import use_kwargs
 from flask_jwt import jwt_required, current_identity
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,27 +28,28 @@ from bookmark_api.resources.common import (
 from bookmark_api import cache
 
 
-class BookmarkListResource(Resource):
+class BookmarkListResource(MethodView):
 
     @jwt_required()
     @use_kwargs(BookmarkListRequestSchema)
-    def get(self, **kwargs):
+    def get(self, *args, **kwargs):
         if current_identity.role.name == 'admin':
-            bookmarks = Bookmark.query.order_by(Bookmark.user_id, Bookmark.created_at.desc()).paginate(**kwargs)
+            bookmarks = Bookmark.query.order_by(Bookmark.user_id, Bookmark.created_at.desc()).\
+                paginate(**kwargs)
         else:
             bookmarks = Bookmark.query.filter_by(user_id=current_identity.id).\
                order_by(Bookmark.created_at.desc()).paginate(**kwargs)
-        return BookmarkListResponseSchema().dump(bookmarks)
+        return BookmarkListResponseSchema().dumps(bookmarks).data, 200
 
 
-class BookmarkResource(Resource):
+class BookmarkResource(MethodView):
 
     @cache.cached()
     @jwt_required()
     @requires_permission(permission_class=ViewBookmarkPermission, field='bookmark_id')
     def get(self, bookmark_id):
         bookmark = Bookmark.query.get_or_404(bookmark_id)
-        return BookmarkResponseSchema().dump(bookmark).data
+        return BookmarkResponseSchema().dumps(bookmark).data, 200
 
     @jwt_required()
     @client_permission.require()
@@ -59,9 +61,10 @@ class BookmarkResource(Resource):
             bookmark = Bookmark(**params)
             db.session.add(bookmark)
             db.session.commit()
-            return BookmarkResponseSchema().dump(bookmark).data
+            return BookmarkResponseSchema().dumps(bookmark).data, 201
         except SQLAlchemyError as e:
-            return {'errors': e.args}, 422
+            db.session.rollback()
+            return jsonify({'errors': e.args}), 422
 
     @jwt_required()
     @requires_permission(permission_class=DeleteBookmarkPermission, field='bookmark_id')
@@ -76,6 +79,6 @@ class BookmarkResource(Resource):
             bookmark = Bookmark.query.filter_by(id=bookmark_id).first()
             assign_attributes(bookmark, kwargs['bookmark'])
             db.session.commit()
-            return None, 204
+            return ('', 204)
         except SQLAlchemyError as e:
-            return {'errors': e.args}, 422
+            return jsonify({'errors': e.args}), 422

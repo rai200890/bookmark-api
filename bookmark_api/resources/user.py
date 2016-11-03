@@ -1,4 +1,5 @@
-from flask_restful import Resource
+from flask.views import MethodView
+from flask import jsonify
 from webargs.flaskparser import use_kwargs
 from flask_jwt import jwt_required, current_identity
 from sqlalchemy.exc import SQLAlchemyError
@@ -27,67 +28,32 @@ from bookmark_api.models import Role
 from bookmark_api import cache
 
 
-class RoleListResource(Resource):
+class RoleListResource(MethodView):
 
     @jwt_required()
     @admin_permission.require()
     def get(self):
         roles = Role.query.all()
-        return RoleListResponseSchema().dump(roles)
+        return RoleListResponseSchema().dumps(roles).data, 200
 
 
-class UserListResource(Resource):
+class UserListResource(MethodView):
 
     @jwt_required()
     @admin_permission.require()
     def get(self):
         users = User.query.all()
-        return UserListResponseSchema().dump(users)
+        return UserListResponseSchema().dumps(users).data, 200
 
 
-class UserResource(Resource):
+class UserResource(MethodView):
 
     @cache.cached()
     @jwt_required()
     @requires_permission(permission_class=ViewUserPermission, field='user_id')
     def get(self, user_id):
-        """
-        This is the language awesomeness API
-        Call this api passing a language name and get back its features
-        ---
-        tags:
-          - Awesomeness Language API
-        parameters:
-          - name: language
-            in: path
-            type: string
-            required: true
-            description: The language name
-          - name: size
-            in: query
-            type: integer
-            description: size of awesomeness
-        responses:
-          500:
-            description: Error The language is not awesome!
-          200:
-            description: A language with its awesomeness
-            schema:
-              id: awesome
-              properties:
-                language:
-                  type: string
-                  description: The language name
-                  default: Lua
-                features:
-                  type: array
-                  description: The awesomeness list
-                  items:
-                    type: string
-                  default: ["perfect", "simple", "lovely"]
-        """
         user = User.query.get_or_404(user_id)
-        return UserResponseSchema().dump(user).data
+        return UserResponseSchema().dumps(user).data, 200
 
     @use_kwargs(CreateUserRequestSchema)
     def post(self, **kwargs):
@@ -96,7 +62,7 @@ class UserResource(Resource):
             self._assign_attributes(user, kwargs['user'])
             db.session.add(user)
             db.session.commit()
-            return UserResponseSchema().dump(user).data
+            return UserResponseSchema().dumps(user).data, 200
         except SQLAlchemyError as e:
             return {'errors': e.args}, 422
 
@@ -114,9 +80,9 @@ class UserResource(Resource):
             self._assign_attributes(user, kwargs['user'])
             db.session.add(user)
             db.session.commit()
-            return None, 204
+            return ('', 204)
         except SQLAlchemyError as e:
-            return {'errors': e.args}, 422
+            return jsonify({'errors': e.args}), 422
 
     @staticmethod
     def _assign_attributes(instance, params):

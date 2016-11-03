@@ -29,7 +29,7 @@ def test_post_valid_from_client(api_test_client, create_valid_params, client_aut
                                     data=json.dumps(create_valid_params),
                                     headers=client_auth_headers)
     data = json.loads(response.data.decode('utf-8'))
-    assert response.status_code == 200
+    assert response.status_code == 201
     assert data['bookmark']['id']
     assert Bookmark.query.filter_by(**create_valid_params['bookmark']).count() == 1
 
