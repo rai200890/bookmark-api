@@ -10,5 +10,5 @@ def handle_delete(model, id):
     deleted_records = model.query.filter_by(id=id).delete()
     db.session.commit()
     if deleted_records > 0:
-        return None, 204
-    return None, 422
+        return ('', 204)
+    return ('', 422)
